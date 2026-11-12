@@ -1,0 +1,23 @@
+{
+  "name": "louvre-salle-des-etats",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "루브르 Salle des États(모나리자 전시실)에서 영감을 받은 1인칭 웹 3D 가상 전시실",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "fetch-images": "node scripts/fetch-images.mjs",
+    "optimize-images": "node scripts/optimize-images.mjs",
+    "images": "npm run fetch-images && npm run optimize-images",
+    "verify-links": "node scripts/verify-links.mjs"
+  },
+  "dependencies": {
+    "three": "^0.180.0"
+  },
+  "devDependencies": {
+    "sharp": "^0.34.0",
+    "vite": "^7.1.0"
+  }
+}

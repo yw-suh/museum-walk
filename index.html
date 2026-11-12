@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta
+      name="description"
+      content="루브르 박물관 Salle des États에서 영감을 받은 교육용 가상 전시실 — 1인칭으로 걸어 다니며 16세기 베네치아 회화를 감상합니다."
+    />
+
+    <!-- 본문 폰트: Pretendard (동적 서브셋). 받지 못하면 Noto Sans KR → 시스템 한글 폰트로 떨어집니다. -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
+    />
+
+    <title>Salle des États — 교육용 가상 전시실</title>
+  </head>
+  <body>
+    <canvas id="scene"></canvas>
+
+    <!-- 조준점 + 호버 중인 작품 이름 -->
+    <div id="hud" class="hidden" aria-hidden="true">
+      <div id="crosshair"></div>
+      <div id="hover-label"></div>
+    </div>
+
+    <!-- 우측 작품 정보 패널 -->
+    <aside id="info-panel" class="hidden" aria-live="polite">
+      <button id="info-close" type="button" aria-label="정보 패널 닫기">×</button>
+      <p id="info-eyebrow"></p>
+      <h2 id="info-title"></h2>
+      <p id="info-title-original"></p>
+      <dl id="info-meta"></dl>
+      <p id="info-scale" class="hidden"></p>
+      <p id="info-description"></p>
+      <button id="info-zoom" type="button">크게 보기</button>
+      <nav id="info-links" aria-label="외부 학습 링크"></nav>
+      <p id="info-credit"></p>
+    </aside>
+
+    <!-- 전체 화면 작품 뷰어 ("크게 보기") -->
+    <div id="viewer" class="hidden" role="dialog" aria-modal="true" aria-label="작품 크게 보기">
+      <button id="viewer-close" type="button" aria-label="뷰어 닫기">×</button>
+      <img id="viewer-img" alt="" draggable="false" />
+      <p id="viewer-status" class="hidden"></p>
+      <div id="viewer-bar">
+        <p id="viewer-caption"></p>
+        <p id="viewer-hint"></p>
+        <span id="viewer-zoom">100%</span>
+      </div>
+    </div>
+
+    <!-- 시작 화면 -->
+    <div id="start-overlay">
+      <div class="start-card">
+        <p class="start-eyebrow">Musée du Louvre · Aile Denon · Salle 711</p>
+        <h1>Salle des États</h1>
+        <p class="start-sub">루브르 박물관 Salle des États에서 영감을 받은 교육용 가상 전시실</p>
+        <p class="start-intro" id="start-intro"></p>
+
+        <section class="controls">
+          <h2>조작법</h2>
+          <ul>
+            <li><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd><span>걷기</span></li>
+            <li><kbd>Shift</kbd><span>빠르게 걷기</span></li>
+            <li><kbd>마우스</kbd><span>시점 회전</span></li>
+            <li><kbd>클릭</kbd><span>조준점에 들어온 그림의 정보 보기</span></li>
+            <li><kbd>Esc</kbd><span>정보 패널·뷰어 닫기 · 시작 화면으로</span></li>
+          </ul>
+          <p class="controls-tip">
+            바닥의 옅은 원은 작품이 가장 알맞게 보이는 위치입니다. 그 위에 서서 감상해 보세요.
+          </p>
+        </section>
+
+        <div id="load-progress">
+          <div class="load-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+            <div id="load-bar"></div>
+          </div>
+          <p id="load-text">작품 이미지 불러오는 중… 0%</p>
+        </div>
+
+        <button id="enter-button" type="button" disabled>불러오는 중… 0%</button>
+        <p class="start-foot">
+          작품 이미지는 Wikimedia Commons 퍼블릭 도메인 자료입니다. 작품 정보·치수·소재는
+          <a href="https://collections.louvre.fr/" target="_blank" rel="noopener noreferrer"
+            >루브르 공식 소장품 데이터베이스</a
+          >를 따릅니다.
+        </p>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

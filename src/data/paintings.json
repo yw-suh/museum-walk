@@ -1,0 +1,182 @@
+{
+  "$comment": "작품 데이터. size는 루브르 공식 소장품 기록(collections.louvre.fr)의 실제 치수(cm)이며 3D 공간에 cm→m 로 그대로 환산해 배치된다. placement.wall 은 rooms.json 의 walls[].id 를 가리킨다. 걸이 높이는 rooms.json 의 hangingRule 에 따라 자동 계산되며, placement.centerHeight 를 적으면 그 값이 우선한다.",
+  "paintings": [
+    {
+      "id": "mona-lisa",
+      "room": "salle-des-etats",
+      "titleKo": "모나리자",
+      "titleOriginal": "Portrait de Lisa Gherardini, épouse de Francesco del Giocondo, dit La Joconde ou Monna Lisa",
+      "artistKo": "레오나르도 다 빈치",
+      "artistOriginal": "Leonardo da Vinci",
+      "yearLabel": "1503~1519년",
+      "mediumKo": "포플러 패널에 유채",
+      "inventory": "INV 779 ; MR 316",
+      "size": { "heightCm": 79.4, "widthCm": 53.4 },
+      "scaleNote": "A1 용지(84 × 59 cm)보다 조금 작습니다. 세계에서 가장 유명한 그림이지만 실물은 생각보다 아주 작습니다.",
+      "description": "피렌체 상인 프란체스코 델 조콘도의 아내 리자 게라르디니를 그린 초상으로 여겨진다. 윤곽선을 연기처럼 녹이는 스푸마토 기법과, 멀어질수록 푸르게 흐려지는 공기 원근법이 인물과 배경 풍경을 하나로 묶는다. 1911년 도난 사건을 계기로 세계적 명성을 얻었고, 지금은 전시실 한가운데 독립된 칸막이벽에서 방탄 유리 안에 홀로 걸려 있다.",
+      "image": "images/mona-lisa.webp",
+      "imageLarge": "images/large/mona-lisa.webp",
+      "frame": { "color": "#4a3317", "width": 0.1, "depth": 0.08 },
+      "placement": { "wall": "partition", "face": "+", "offset": 0, "viewFrom": 3.5 },
+      "credit": {
+        "source": "Wikimedia Commons",
+        "file": "Mona Lisa, by Leonardo da Vinci, from C2RMF retouched.jpg",
+        "fileUrl": "https://commons.wikimedia.org/wiki/File:Mona_Lisa,_by_Leonardo_da_Vinci,_from_C2RMF_retouched.jpg",
+        "license": "Public domain"
+      },
+      "links": [
+        { "type": "louvre", "label": "루브르 공식 소장품 페이지", "url": "https://collections.louvre.fr/en/ark:/53355/cl010062370" },
+        { "type": "wikipedia-ko", "label": "위키백과(한국어) — 모나리자", "url": "https://ko.wikipedia.org/wiki/모나리자" }
+      ]
+    },
+
+    {
+      "id": "noces-de-cana",
+      "room": "salle-des-etats",
+      "titleKo": "가나의 혼인잔치",
+      "titleOriginal": "Les Noces de Cana",
+      "artistKo": "파올로 베로네세",
+      "artistOriginal": "Paolo Caliari, dit Veronese",
+      "yearLabel": "1562~1563년",
+      "mediumKo": "캔버스에 유채",
+      "inventory": "INV 142 ; MR 384",
+      "size": { "heightCm": 677, "widthCm": 994 },
+      "scaleNote": "높이 6.8 m 는 2층 건물, 너비 9.9 m 는 시내버스 한 대에 가깝습니다. 루브르에서 가장 큰 그림입니다.",
+      "description": "베네치아 산조르조 마조레 수도원의 식당 벽을 위해 그려진, 루브르에서 가장 큰 회화다. 물을 포도주로 바꾼 요한복음의 기적을 16세기 베네치아의 호화로운 연회로 옮기고, 130명이 넘는 인물을 무대처럼 층층이 배치했다. 1797년 반출되어 이듬해 루브르에 들어왔으며, 지금도 전시실을 가로질러 모나리자와 정면으로 마주 본다.",
+      "image": "images/noces-de-cana.webp",
+      "imageLarge": "images/large/noces-de-cana.webp",
+      "frame": { "color": "#6b5321", "width": 0.22, "depth": 0.14 },
+      "placement": { "wall": "south", "face": "-", "offset": 0 },
+      "credit": {
+        "source": "Wikimedia Commons",
+        "file": "Les Noces de Cana - Paolo Veronese - Musée du Louvre Peintures INV 142 ; MR 384.jpg",
+        "fileUrl": "https://commons.wikimedia.org/wiki/File:Les_Noces_de_Cana_-_Paolo_Veronese_-_Mus%C3%A9e_du_Louvre_Peintures_INV_142_%3B_MR_384.jpg",
+        "license": "Public domain"
+      },
+      "links": [
+        { "type": "louvre", "label": "루브르 공식 소장품 페이지", "url": "https://collections.louvre.fr/en/ark:/53355/cl010064382" },
+        { "type": "wikipedia-ko", "label": "위키백과(한국어) — 가나의 혼인잔치", "url": "https://ko.wikipedia.org/wiki/가나의_혼인잔치" }
+      ]
+    },
+
+    {
+      "id": "pelerins-emmaus",
+      "room": "salle-des-etats",
+      "titleKo": "엠마오의 순례자",
+      "titleOriginal": "Les Pèlerins d'Emmaüs",
+      "artistKo": "파올로 베로네세",
+      "artistOriginal": "Paolo Caliari, dit Veronese",
+      "yearLabel": "16세기 (1500~1600년)",
+      "mediumKo": "캔버스에 유채",
+      "inventory": "INV 146 ; MR 385",
+      "size": { "heightCm": 242, "widthCm": 416 },
+      "scaleNote": "성인 키의 1.4배 높이에, 너비는 승용차 한 대(약 4.5 m) 길이와 비슷합니다.",
+      "description": "부활한 그리스도가 엠마오로 가던 두 제자와 식탁에 앉아 빵을 떼며 정체를 드러내는 누가복음 장면이다. 베로네세는 이 이야기를 16세기 베네치아 저택의 식사 자리로 옮기고, 주문자로 보이는 가족과 아이들, 개까지 화면 앞쪽에 끌어들였다. 사보이아 공작과 크레키 원수를 거쳐 루이 13세가 사들인 프랑스 왕실 구소장품이다.",
+      "image": "images/pelerins-emmaus.webp",
+      "imageLarge": "images/large/pelerins-emmaus.webp",
+      "frame": { "color": "#6b5321", "width": 0.14, "depth": 0.1 },
+      "placement": { "wall": "north", "face": "+", "offset": 0 },
+      "credit": {
+        "source": "Wikimedia Commons",
+        "file": "Les Pèlerins d'Emmaüs - Paolo Veronese - Musée du Louvre Peintures INV 146 ; MR 385.jpg",
+        "fileUrl": "https://commons.wikimedia.org/wiki/File:Les_P%C3%A8lerins_d'Emma%C3%BCs_-_Paolo_Veronese_-_Mus%C3%A9e_du_Louvre_Peintures_INV_146_%3B_MR_385.jpg",
+        "license": "Public domain"
+      },
+      "links": [
+        { "type": "louvre", "label": "루브르 공식 소장품 페이지", "url": "https://collections.louvre.fr/en/ark:/53355/cl010067589" },
+        { "type": "wikipedia-ko", "label": "위키백과(작가) — 파올로 베로네세", "url": "https://ko.wikipedia.org/wiki/파올로_베로네세" },
+        { "type": "wikipedia-en", "label": "위키백과(영문) — Supper at Emmaus", "url": "https://en.wikipedia.org/wiki/Supper_at_Emmaus_(Veronese)" }
+      ]
+    },
+
+    {
+      "id": "suzanne-au-bain",
+      "room": "salle-des-etats",
+      "titleKo": "목욕하는 수산나",
+      "titleOriginal": "Suzanne au bain",
+      "artistKo": "틴토레토",
+      "artistOriginal": "Tintoret (Jacopo Robusti, dit Tintoretto)",
+      "yearLabel": "1550~1575년",
+      "mediumKo": "캔버스에 유채",
+      "inventory": "INV 568 ; MR 498",
+      "size": { "heightCm": 167, "widthCm": 238 },
+      "scaleNote": "높이 1.67 m 는 성인 키, 너비 2.38 m 는 2인용 침대를 세로로 세운 길이와 비슷합니다.",
+      "description": "다니엘서에 전하는 수산나가 숲속 샘가에서 두 시녀의 시중을 받으며 몸단장하는 장면이다. 화면 오른쪽 위, 천을 덮은 탁자 뒤에서 두 장로가 그녀를 훔쳐보고 있어 관람자마저 엿보는 자의 자리에 놓인다. 어두운 숲과 빛나는 살결의 대비, 비스듬히 밀려나는 구도가 틴토레토 특유의 극적인 연출을 보여준다.",
+      "image": "images/suzanne-au-bain.webp",
+      "imageLarge": "images/large/suzanne-au-bain.webp",
+      "frame": { "color": "#5a4620", "width": 0.12, "depth": 0.09 },
+      "placement": { "wall": "west", "face": "+", "offset": 0 },
+      "credit": {
+        "source": "Wikimedia Commons",
+        "file": "Suzanne au bain - Le Tintoret - Musée du Louvre Peintures INV 568 ; MR 498.jpg",
+        "fileUrl": "https://commons.wikimedia.org/wiki/File:Suzanne_au_bain_-_Le_Tintoret_-_Mus%C3%A9e_du_Louvre_Peintures_INV_568_%3B_MR_498.jpg",
+        "license": "Public domain"
+      },
+      "links": [
+        { "type": "louvre", "label": "루브르 공식 소장품 페이지", "url": "https://collections.louvre.fr/en/ark:/53355/cl010062254" },
+        { "type": "wikipedia-ko", "label": "위키백과(작가) — 틴토레토", "url": "https://ko.wikipedia.org/wiki/틴토레토" },
+        { "type": "wikipedia-en", "label": "위키백과(영문·작가) — Tintoretto", "url": "https://en.wikipedia.org/wiki/Tintoretto" }
+      ]
+    },
+
+    {
+      "id": "homme-au-gant",
+      "room": "salle-des-etats",
+      "titleKo": "장갑을 낀 남자",
+      "titleOriginal": "Portrait d'homme, dit L'Homme au gant",
+      "artistKo": "티치아노",
+      "artistOriginal": "Titien (Tiziano Vecellio)",
+      "yearLabel": "1500~1525년",
+      "mediumKo": "캔버스에 유채",
+      "inventory": "INV 757 ; MR 507",
+      "size": { "heightCm": 100, "widthCm": 89 },
+      "scaleNote": "한 변이 1 m 안팎인 거의 정사각형. 24인치 모니터 두 대를 나란히 놓은 정도입니다.",
+      "description": "이름이 밝혀지지 않은 젊은 베네치아 귀족을 그린 초상으로, 티치아노 초기 초상화의 대표작으로 꼽힌다. 어두운 배경에서 떠오르는 흰 셔츠와 장갑을 쥔 손이 시선을 이끌고, 절제된 자세 속에 서늘한 긴장이 흐른다. 만토바 공작가와 영국 찰스 1세의 수장품을 거쳐 1671년 루이 14세의 컬렉션에 들어왔다.",
+      "image": "images/homme-au-gant.webp",
+      "imageLarge": "images/large/homme-au-gant.webp",
+      "frame": { "color": "#4a3317", "width": 0.1, "depth": 0.08 },
+      "placement": { "wall": "east", "face": "-", "offset": -3.5 },
+      "credit": {
+        "source": "Wikimedia Commons",
+        "file": "Tizian 079.jpg",
+        "fileUrl": "https://commons.wikimedia.org/wiki/File:Tizian_079.jpg",
+        "license": "Public domain"
+      },
+      "links": [
+        { "type": "louvre", "label": "루브르 공식 소장품 페이지", "url": "https://collections.louvre.fr/en/ark:/53355/cl010062290" },
+        { "type": "wikipedia-ko", "label": "위키백과(작가) — 티치아노", "url": "https://ko.wikipedia.org/wiki/티치아노_베첼리오" },
+        { "type": "wikipedia-en", "label": "위키백과(영문) — Man with a Glove", "url": "https://en.wikipedia.org/wiki/Man_with_a_Glove" }
+      ]
+    },
+
+    {
+      "id": "femme-au-miroir",
+      "room": "salle-des-etats",
+      "titleKo": "거울을 보는 여인",
+      "titleOriginal": "La Femme au miroir",
+      "artistKo": "티치아노",
+      "artistOriginal": "Titien (Tiziano Vecellio)",
+      "yearLabel": "1525~1550년",
+      "mediumKo": "캔버스에 유채",
+      "inventory": "INV 755 ; MR 504",
+      "size": { "heightCm": 99, "widthCm": 76 },
+      "scaleNote": "A0 용지(119 × 84 cm)보다 조금 작습니다. 모나리자보다는 한 뼘 정도 큽니다.",
+      "description": "긴 머리를 매만지는 여인 뒤에서 한 남자가 커다란 볼록 거울과 작은 평면 거울을 받쳐 들고 있다. 두 거울로 앞모습과 뒷모습을 동시에 보여주어, 회화는 한 시점밖에 담지 못한다는 조각 옹호론에 대한 티치아노의 응답으로 읽히곤 한다. 만토바 곤차가가와 찰스 1세를 거쳐 1662년 자바크 컬렉션에서 루이 14세가 사들였다.",
+      "image": "images/femme-au-miroir.webp",
+      "imageLarge": "images/large/femme-au-miroir.webp",
+      "frame": { "color": "#4a3317", "width": 0.1, "depth": 0.08 },
+      "placement": { "wall": "east", "face": "-", "offset": 3.5 },
+      "credit": {
+        "source": "Wikimedia Commons",
+        "file": "Portrait d'une Femme à sa Toilette, by Titian, from C2RMF retouched.jpg",
+        "fileUrl": "https://commons.wikimedia.org/wiki/File:Portrait_d'une_Femme_%C3%A0_sa_Toilette,_by_Titian,_from_C2RMF_retouched.jpg",
+        "license": "Public domain"
+      },
+      "links": [
+        { "type": "louvre", "label": "루브르 공식 소장품 페이지", "url": "https://collections.louvre.fr/en/ark:/53355/cl010062292" },
+        { "type": "wikipedia-ko", "label": "위키백과(작가) — 티치아노", "url": "https://ko.wikipedia.org/wiki/티치아노_베첼리오" },
+        { "type": "wikipedia-en", "label": "위키백과(영문) — Woman with a Mirror", "url": "https://en.wikipedia.org/wiki/Woman_with_a_Mirror" }
+      ]
+    }
+  ]
+}

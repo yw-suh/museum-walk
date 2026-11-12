@@ -1,25 +1,53 @@
 import * as THREE from 'three';
 
-const MAX_DISTANCE = 12; // 이 거리 안의 작품만 집을 수 있다 (m)
+const MAX_DISTANCE = 14; // 이 거리 안의 대상만 집을 수 있다 (m)
 
 /**
- * 화면 중앙(조준점)에서 Raycaster 를 쏘아 바라보는 작품을 찾는다.
+ * 화면 한 점에서 Raycaster 를 쏘아 바라보는 대상을 찾는다.
+ *
+ * 작품과 포털을 함께 판정한다. 데스크톱은 화면 중앙(조준점),
+ * 모바일은 손가락으로 탭한 좌표를 쓴다.
+ *
+ * @returns {{kind:'painting'|'portal', painting?:object, portal?:object, object:THREE.Object3D}|null}
  */
-export class PaintingPicker {
-  constructor(camera, targets) {
+export class Picker {
+  constructor(camera) {
     this.camera = camera;
-    this.targets = targets;
     this.raycaster = new THREE.Raycaster();
     this.raycaster.far = MAX_DISTANCE;
-    this.center = new THREE.Vector2(0, 0);
+    this.targets = [];
     this.current = null;
   }
 
-  /** @returns {object|null} 조준점에 들어온 작품 데이터 */
-  update() {
-    this.raycaster.setFromCamera(this.center, this.camera);
+  setTargets(targets) {
+    this.targets = targets;
+    this.current = null;
+  }
+
+  /** @param {THREE.Vector2} [ndc] 정규화 좌표(-1~1). 없으면 화면 중앙 */
+  pick(ndc = CENTER) {
+    this.raycaster.setFromCamera(ndc, this.camera);
     const hit = this.raycaster.intersectObjects(this.targets, false)[0];
-    this.current = hit ? hit.object.userData.painting : null;
+    if (!hit) return null;
+    const data = hit.object.userData;
+    if (data.painting) return { kind: 'painting', painting: data.painting, object: hit.object };
+    if (data.portal) return { kind: 'portal', portal: data.portal, object: hit.object };
+    return null;
+  }
+
+  /** 매 프레임 호출 — 조준점에 들어온 대상을 기억해 둔다 */
+  update() {
+    this.current = this.pick();
     return this.current;
   }
+}
+
+const CENTER = new THREE.Vector2(0, 0);
+
+/** 화면 픽셀 좌표를 정규화 좌표로 */
+export function toNdc(clientX, clientY) {
+  return new THREE.Vector2(
+    (clientX / window.innerWidth) * 2 - 1,
+    -(clientY / window.innerHeight) * 2 + 1,
+  );
 }

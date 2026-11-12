@@ -1,21 +1,73 @@
+import { AVATAR_COLORS } from '../core/PlayerState.js';
+import { loadProfile, saveProfile, sanitizeName, MAX_NAME } from '../core/profile.js';
+import { isTouchDevice } from '../core/input.js';
+
 /**
- * 시작 화면: 제목 · 전시실 소개 · 조작법 · 로딩 진행률 · "입장하기" 버튼.
- * 포인터 잠금이 풀리면(Esc) 다시 나타난다.
+ * 시작 화면: 제목 · 소개 · 닉네임 · 아바타 색상 · 조작법 · 로딩 진행률 · 입장 버튼.
+ * 관람 중 포인터 잠금이 풀리면(Esc) 다시 나타난다.
  */
-export function createStartOverlay({ room, onEnter }) {
+export function createStartOverlay({ onEnter }) {
   const overlay = document.querySelector('#start-overlay');
   const button = document.querySelector('#enter-button');
+  const nameInput = document.querySelector('#nickname');
+  const swatches = document.querySelector('#avatar-colors');
   const progressBar = document.querySelector('#load-bar');
   const progressText = document.querySelector('#load-text');
   const progressBox = document.querySelector('#load-progress');
-  document.querySelector('#start-intro').textContent = room.intro;
+  const controlsDesktop = document.querySelector('#controls-desktop');
+  const controlsTouch = document.querySelector('#controls-touch');
+
+  // 기기에 맞는 조작 안내만 보여 준다
+  (isTouchDevice ? controlsDesktop : controlsTouch).classList.add('hidden');
+
+  const saved = loadProfile();
+  const profile = {
+    name: saved?.name ?? '',
+    color: saved?.color ?? AVATAR_COLORS[0].hex,
+  };
+
+  nameInput.value = profile.name;
+  nameInput.maxLength = MAX_NAME;
+  nameInput.addEventListener('input', () => {
+    profile.name = nameInput.value;
+  });
+  nameInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && ready) button.click();
+  });
+
+  swatches.replaceChildren(
+    ...AVATAR_COLORS.map((color) => {
+      const swatch = document.createElement('button');
+      swatch.type = 'button';
+      swatch.className = 'swatch';
+      swatch.style.background = color.hex;
+      swatch.title = color.label;
+      swatch.setAttribute('aria-label', `아바타 색상 ${color.label}`);
+      swatch.dataset.hex = color.hex;
+      swatch.addEventListener('click', () => {
+        profile.color = color.hex;
+        paintSelection();
+      });
+      return swatch;
+    }),
+  );
+
+  function paintSelection() {
+    for (const swatch of swatches.children) {
+      swatch.classList.toggle('selected', swatch.dataset.hex === profile.color);
+    }
+  }
+  paintSelection();
 
   let ready = false;
 
   button.addEventListener('click', () => {
     if (!ready) return;
+    const resolved = { name: sanitizeName(profile.name), color: profile.color };
+    nameInput.value = resolved.name;
+    saveProfile(resolved);
     overlay.classList.add('hidden');
-    onEnter();
+    onEnter(resolved);
   });
 
   return {
@@ -26,11 +78,10 @@ export function createStartOverlay({ room, onEnter }) {
       progressBar.parentElement.setAttribute('aria-valuenow', String(percent));
       progressText.textContent = total
         ? `작품 이미지 불러오는 중… ${percent}% (${loaded}/${total})`
-        : `작품 이미지 불러오는 중… ${percent}%`;
-      button.textContent = `불러오는 중… ${percent}%`;
+        : `전시실 준비 중… ${percent}%`;
+      if (!ready) button.textContent = `불러오는 중… ${percent}%`;
     },
 
-    /** 에셋 로딩이 끝나 입장할 수 있게 되었을 때 */
     ready() {
       ready = true;
       button.disabled = false;
@@ -49,6 +100,9 @@ export function createStartOverlay({ room, onEnter }) {
     },
     get isVisible() {
       return !overlay.classList.contains('hidden');
+    },
+    get profile() {
+      return { name: sanitizeName(profile.name), color: profile.color };
     },
   };
 }

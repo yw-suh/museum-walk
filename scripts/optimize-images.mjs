@@ -6,10 +6,11 @@
  *   public/images/<id>.webp        3D 텍스처용 · 긴 변 2048px · quality 80
  *   public/images/large/<id>.webp  크게 보기 뷰어용 · 긴 변 4096px · quality 82 (지연 로딩)
  *
- * 텍스처 쪽 총 용량이 TEXTURE_BUDGET_MB 를 넘으면 실패로 끝납니다.
- * (첫 화면 로딩에 직접 영향을 주는 쪽이라 상한을 둡니다. 뷰어용은 열 때만 받으므로 제외.)
+ * 텍스처 용량은 **전시실 단위**로 TEXTURE_BUDGET_MB 를 넘으면 실패로 끝납니다.
+ * 전시실은 한 번에 하나만 로딩하므로, 입장할 때 받는 양이 곧 한 방의 합계입니다.
+ * (뷰어용은 "크게 보기"를 눌러야 받으므로 상한에서 제외.)
  */
-import { readdir, mkdir, stat, writeFile } from 'node:fs/promises';
+import { readdir, mkdir, stat, writeFile, readFile } from 'node:fs/promises';
 import { dirname, resolve, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
@@ -21,7 +22,7 @@ const BIG_DIR = resolve(ROOT, 'public/images/large');
 
 const TEXTURE = { maxSide: 2048, quality: 80 };
 const VIEWER = { maxSide: 4096, quality: 82 };
-const TEXTURE_BUDGET_MB = 4;
+const TEXTURE_BUDGET_MB = 4; // 전시실 한 곳 기준
 
 const mb = (bytes) => bytes / 1024 / 1024;
 const kb = (bytes) => Math.round(bytes / 1024);
@@ -61,6 +62,10 @@ async function main() {
   await mkdir(TEX_DIR, { recursive: true });
   await mkdir(BIG_DIR, { recursive: true });
 
+  // 작품 id → 전시실 id (용량을 전시실 단위로 집계하기 위해)
+  const paintings = JSON.parse(await readFile(resolve(ROOT, 'src/data/paintings.json'), 'utf8')).paintings;
+  const roomOf = new Map(paintings.map((p) => [p.id, p.room]));
+
   let texTotal = 0;
   let bigTotal = 0;
   let srcTotal = 0;
@@ -76,20 +81,33 @@ async function main() {
     texTotal += tex.bytes;
     bigTotal += big.bytes;
 
-    rows.push({ id, tex, big });
+    rows.push({ id, room: roomOf.get(id) ?? '(미배치)', tex, big });
     console.log(
-      `✓ ${id.padEnd(18)} 텍스처 ${tex.to.padEnd(10)} ${String(kb(tex.bytes)).padStart(5)} KB` +
+      `✓ ${id.padEnd(26)} 텍스처 ${tex.to.padEnd(10)} ${String(kb(tex.bytes)).padStart(5)} KB` +
         `   뷰어 ${big.to.padEnd(10)} ${String(kb(big.bytes)).padStart(5)} KB`,
     );
   }
 
-  console.log(
-    `\n원본(JPEG) 합계      ${mb(srcTotal).toFixed(2)} MB` +
-      `\n3D 텍스처 WebP 합계  ${mb(texTotal).toFixed(2)} MB  (상한 ${TEXTURE_BUDGET_MB} MB)` +
-      `\n뷰어 WebP 합계       ${mb(bigTotal).toFixed(2)} MB  (지연 로딩, 상한 없음)`,
-  );
+  // 전시실별 집계
+  const byRoom = new Map();
+  for (const r of rows) {
+    const acc = byRoom.get(r.room) ?? { tex: 0, big: 0, count: 0 };
+    acc.tex += r.tex.bytes;
+    acc.big += r.big.bytes;
+    acc.count++;
+    byRoom.set(r.room, acc);
+  }
 
-  // 변환 결과를 기록해 두면 README·보고에서 그대로 인용할 수 있다
+  console.log(`\n원본(JPEG) 합계 ${mb(srcTotal).toFixed(2)} MB\n`);
+  console.log(`전시실별 3D 텍스처 용량 (상한 ${TEXTURE_BUDGET_MB} MB / 전시실)`);
+  const over = [];
+  for (const [room, acc] of byRoom) {
+    const ok = mb(acc.tex) <= TEXTURE_BUDGET_MB;
+    if (!ok) over.push(room);
+    console.log(`  ${ok ? '✓' : '✗'} ${room.padEnd(20)} ${acc.count}점  ${mb(acc.tex).toFixed(2)} MB`);
+  }
+  console.log(`\n전체 텍스처 ${mb(texTotal).toFixed(2)} MB · 뷰어 ${mb(bigTotal).toFixed(2)} MB (지연 로딩)`);
+
   await writeFile(
     resolve(TEX_DIR, 'SIZES.md'),
     [
@@ -97,22 +115,35 @@ async function main() {
       '',
       '`npm run optimize-images` 가 자동 생성합니다. 출처·라이선스는 [CREDITS.md](CREDITS.md) 참고.',
       '',
-      '| 작품 | 원본 | 텍스처 WebP (2048) | 뷰어 WebP (4096) |',
-      '| --- | --- | --- | --- |',
-      ...rows.map(
-        (r) => `| ${r.id} | ${r.tex.from} | ${r.tex.to} · ${kb(r.tex.bytes)} KB | ${r.big.to} · ${kb(r.big.bytes)} KB |`,
+      `## 전시실별 3D 텍스처 용량 (상한 ${TEXTURE_BUDGET_MB} MB / 전시실)`,
+      '',
+      '전시실은 한 번에 하나만 로딩하므로, 입장할 때 내려받는 양이 곧 한 방의 합계입니다.',
+      '',
+      '| 전시실 | 작품 수 | 텍스처 합계 | 뷰어 합계(지연 로딩) |',
+      '| --- | ---: | ---: | ---: |',
+      ...[...byRoom].map(
+        ([room, a]) => `| ${room} | ${a.count} | **${mb(a.tex).toFixed(2)} MB** | ${mb(a.big).toFixed(2)} MB |`,
       ),
       '',
-      `- 3D 텍스처 합계: **${mb(texTotal).toFixed(2)} MB** (상한 ${TEXTURE_BUDGET_MB} MB)`,
-      `- 뷰어 합계: ${mb(bigTotal).toFixed(2)} MB (크게 보기를 열 때만 내려받음)`,
+      '## 작품별',
+      '',
+      '| 작품 | 전시실 | 원본 | 텍스처 WebP (2048) | 뷰어 WebP (4096) |',
+      '| --- | --- | --- | --- | --- |',
+      ...rows.map(
+        (r) =>
+          `| ${r.id} | ${r.room} | ${r.tex.from} | ${r.tex.to} · ${kb(r.tex.bytes)} KB | ${r.big.to} · ${kb(r.big.bytes)} KB |`,
+      ),
+      '',
+      `- 원본 JPEG 합계: ${mb(srcTotal).toFixed(2)} MB (저장소에 포함하지 않음)`,
+      `- 전체 텍스처: ${mb(texTotal).toFixed(2)} MB · 전체 뷰어: ${mb(bigTotal).toFixed(2)} MB`,
       '',
     ].join('\n'),
     'utf8',
   );
 
-  if (mb(texTotal) > TEXTURE_BUDGET_MB) {
+  if (over.length) {
     console.error(
-      `\n✗ 3D 텍스처 합계가 상한 ${TEXTURE_BUDGET_MB} MB 를 넘었습니다. ` +
+      `\n✗ 전시실 ${over.join(', ')} 의 텍스처 합계가 상한 ${TEXTURE_BUDGET_MB} MB 를 넘었습니다. ` +
         `TEXTURE.quality 를 낮추거나 maxSide 를 줄이세요.`,
     );
     process.exit(1);

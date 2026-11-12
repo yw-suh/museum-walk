@@ -32,6 +32,76 @@ body {
   display: none !important;
 }
 
+/* ---------- 현재 위치 막대 ---------- */
+
+#location-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 12;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 11px 18px calc(11px + env(safe-area-inset-top, 0px));
+  background: linear-gradient(to bottom, rgba(6, 12, 22, 0.88), rgba(6, 12, 22, 0));
+  pointer-events: none;
+}
+
+.loc-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+#loc-name {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+#loc-sub {
+  font-size: 11.5px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#loc-count {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--gold);
+  white-space: nowrap;
+}
+
+#loc-menu {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 13px;
+  font: inherit;
+  font-size: 12.5px;
+  color: var(--paper);
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(201, 169, 97, 0.4);
+  border-radius: 8px;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+#loc-menu:hover {
+  background: rgba(201, 169, 97, 0.18);
+}
+
+#loc-menu kbd {
+  min-width: 18px;
+  padding: 1px 5px;
+  font-size: 10.5px;
+}
+
 /* ---------- HUD ---------- */
 
 #hud {
@@ -81,6 +151,15 @@ body {
 
 #hud.targeting #hover-label {
   opacity: 1;
+}
+
+#hud.portal #crosshair {
+  border-color: #8fd3a6;
+  box-shadow: 0 0 10px rgba(143, 211, 166, 0.6);
+}
+
+#hud.portal #hover-label {
+  border-color: rgba(143, 211, 166, 0.55);
 }
 
 /* ---------- 정보 패널 ---------- */
@@ -267,6 +346,234 @@ body {
   color: #9aa7b8;
 }
 
+/* ---------- 모바일 조작 ---------- */
+
+#touch-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 11;
+  touch-action: none;
+}
+
+#joystick {
+  position: absolute;
+  width: 124px;
+  height: 124px;
+  margin: -62px 0 0 -62px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1.5px solid rgba(255, 255, 255, 0.22);
+  pointer-events: none;
+}
+
+#joystick-knob {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 54px;
+  height: 54px;
+  margin: -27px 0 0 -27px;
+  border-radius: 50%;
+  background: rgba(201, 169, 97, 0.75);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+}
+
+#touch-view {
+  position: absolute;
+  right: calc(16px + env(safe-area-inset-right, 0px));
+  bottom: calc(26px + env(safe-area-inset-bottom, 0px));
+  width: 62px;
+  height: 62px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--paper);
+  background: rgba(10, 18, 30, 0.7);
+  border: 1.5px solid rgba(201, 169, 97, 0.5);
+  border-radius: 50%;
+}
+
+#touch-enter {
+  position: absolute;
+  left: 50%;
+  bottom: calc(110px + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  padding: 14px 24px;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+  color: #15202f;
+  background: #8fd3a6;
+  border: none;
+  border-radius: 999px;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.45);
+}
+
+/* ---------- 전시실 메뉴 ---------- */
+
+#room-menu {
+  position: fixed;
+  inset: 0;
+  z-index: 35;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  overflow-y: auto;
+  background: rgba(5, 10, 18, 0.82);
+  backdrop-filter: blur(6px);
+}
+
+.menu-card {
+  position: relative;
+  width: min(560px, 100%);
+  padding: 32px 30px 26px;
+  border: 1px solid rgba(201, 169, 97, 0.3);
+  border-radius: 14px;
+  background: rgba(9, 17, 29, 0.96);
+  box-shadow: 0 26px 70px rgba(0, 0, 0, 0.55);
+}
+
+#room-menu-close {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  width: 34px;
+  height: 34px;
+  font-size: 22px;
+  line-height: 1;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid rgba(168, 179, 194, 0.3);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.menu-eyebrow {
+  margin: 0 0 8px;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.menu-card h2 {
+  margin: 0 0 20px;
+  font-size: 23px;
+}
+
+#room-menu-list {
+  display: grid;
+  gap: 10px;
+}
+
+.room-card {
+  display: grid;
+  gap: 4px;
+  padding: 15px 17px;
+  text-align: left;
+  font: inherit;
+  color: var(--paper);
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.14s, border-color 0.14s;
+}
+
+.room-card:hover:not(:disabled) {
+  background: rgba(201, 169, 97, 0.14);
+  border-color: rgba(201, 169, 97, 0.5);
+}
+
+.room-card:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.room-card-name {
+  font-size: 15.5px;
+  font-weight: 700;
+}
+
+.room-card-sub {
+  font-size: 12px;
+  color: var(--muted);
+  word-break: keep-all;
+}
+
+.room-card-meta {
+  font-size: 11.5px;
+  color: var(--gold);
+}
+
+.menu-foot {
+  margin: 18px 0 0;
+  font-size: 11.5px;
+  color: #7f8b9b;
+}
+
+.menu-foot code {
+  color: var(--gold);
+}
+
+/* ---------- 방 이동 로딩 ---------- */
+
+#travel {
+  position: fixed;
+  inset: 0;
+  z-index: 38;
+  display: grid;
+  place-items: center;
+  background: rgba(5, 10, 18, 0.94);
+}
+
+.travel-inner {
+  width: min(380px, 80vw);
+  text-align: center;
+}
+
+#travel-name {
+  margin: 0 0 18px;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+#travel-bar {
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, #8d7336, var(--gold));
+  border-radius: 99px;
+  transition: width 0.2s ease-out;
+}
+
+#travel-text {
+  margin: 11px 0 0;
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+
+/* ---------- 디버그 ---------- */
+
+#debug {
+  position: fixed;
+  left: 12px;
+  bottom: 12px;
+  z-index: 50;
+  margin: 0;
+  padding: 10px 13px;
+  font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  font-size: 11.5px;
+  line-height: 1.6;
+  white-space: pre;
+  color: #9fe6b4;
+  background: rgba(4, 10, 16, 0.82);
+  border: 1px solid rgba(159, 230, 180, 0.3);
+  border-radius: 8px;
+  pointer-events: none;
+}
+
 /* ---------- 크게 보기 뷰어 ---------- */
 
 #viewer {
@@ -414,8 +721,82 @@ body {
   word-break: keep-all;
 }
 
+/* ---------- 관람객 정보 (닉네임 · 색상) ---------- */
+
+.profile {
+  margin: 0 0 20px;
+  padding: 20px 22px;
+  text-align: left;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.profile h2 {
+  margin: 0 0 14px;
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.profile label {
+  display: block;
+  margin: 0 0 7px;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+#nickname {
+  width: 100%;
+  margin: 0 0 16px;
+  padding: 11px 13px;
+  font: inherit;
+  font-size: 15px;
+  color: var(--paper);
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+}
+
+#nickname:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+
+#avatar-colors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.swatch {
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: 2px solid rgba(255, 255, 255, 0.18);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.12s, border-color 0.12s;
+}
+
+.swatch:hover {
+  transform: scale(1.08);
+}
+
+.swatch.selected {
+  border-color: var(--paper);
+  box-shadow: 0 0 0 3px rgba(201, 169, 97, 0.55);
+}
+
+.profile-note {
+  margin: 14px 0 0;
+  font-size: 11.5px;
+  color: #7f8b9b;
+}
+
 .controls {
-  margin: 0 0 30px;
+  margin: 0 0 24px;
   padding: 20px 22px;
   text-align: left;
   border-radius: 10px;
@@ -553,4 +934,61 @@ kbd {
   .start-card h1 {
     font-size: 34px;
   }
+}
+
+/* ---------- 터치 기기: 정보 패널을 하단 시트로 ---------- */
+
+body.touch #info-panel {
+  top: auto;
+  right: 0;
+  left: 0;
+  width: 100%;
+  height: auto;
+  max-height: 72vh;
+  padding: 22px 20px calc(28px + env(safe-area-inset-bottom, 0px));
+  border-left: none;
+  border-top: 1px solid rgba(201, 169, 97, 0.4);
+  border-radius: 18px 18px 0 0;
+  box-shadow: 0 -16px 46px rgba(0, 0, 0, 0.55);
+  animation: sheet-up 0.26s ease-out;
+  overscroll-behavior: contain;
+}
+
+/* 시트를 끌어올리는 손잡이 */
+body.touch #info-panel::before {
+  content: '';
+  position: sticky;
+  top: 0;
+  display: block;
+  width: 44px;
+  height: 4px;
+  margin: -8px auto 14px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.28);
+}
+
+body.touch #info-close {
+  top: 14px;
+  right: 14px;
+}
+
+body.touch #info-title {
+  font-size: 23px;
+}
+
+@keyframes sheet-up {
+  from {
+    transform: translateY(26px);
+    opacity: 0;
+  }
+}
+
+/* 터치 기기에서는 조준점이 필요 없다 — 탭으로 고른다 */
+body.touch #crosshair,
+body.touch #hover-label {
+  display: none;
+}
+
+body.touch #viewer-img {
+  max-height: calc(100vh - 150px);
 }

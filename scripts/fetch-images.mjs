@@ -11,7 +11,7 @@
  *
  * 작품을 추가할 때는 아래 TARGETS 에 { id, commonsFile } 한 줄만 더하면 됩니다.
  */
-import { writeFile, mkdir } from 'node:fs/promises';
+import { writeFile, readFile, mkdir, stat } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -24,12 +24,29 @@ const UA = 'louvre-salle-des-etats/0.1 (educational Three.js demo)';
 
 /** <id>.jpg <- Commons 원본 파일명 */
 const TARGETS = [
+  // ── 전시실 1 · Salle des États (711) ──────────────────────────────────────
   { id: 'mona-lisa', commonsFile: 'Mona Lisa, by Leonardo da Vinci, from C2RMF retouched.jpg' },
   { id: 'noces-de-cana', commonsFile: 'Les Noces de Cana - Paolo Veronese - Musée du Louvre Peintures INV 142 ; MR 384.jpg' },
   { id: 'homme-au-gant', commonsFile: 'Tizian 079.jpg' },
   { id: 'femme-au-miroir', commonsFile: "Portrait d'une Femme à sa Toilette, by Titian, from C2RMF retouched.jpg" },
   { id: 'pelerins-emmaus', commonsFile: "Les Pèlerins d'Emmaüs - Paolo Veronese - Musée du Louvre Peintures INV 146 ; MR 385.jpg" },
   { id: 'suzanne-au-bain', commonsFile: 'Suzanne au bain - Le Tintoret - Musée du Louvre Peintures INV 568 ; MR 498.jpg' },
+
+  // ── 전시실 2 · 프랑스 대형 회화실 (700 Mollien · 702 Daru) ────────────────
+  { id: 'radeau-de-la-meduse', commonsFile: 'JEAN LOUIS THÉODORE GÉRICAULT - La Balsa de la Medusa (Museo del Louvre, 1818-19).jpg' },
+  { id: 'liberte-guidant-le-peuple', commonsFile: 'La Liberté guidant le peuple - Eugène Delacroix - Musée du Louvre Peintures RF 129 - après restauration 2024.jpg' },
+  { id: 'sacre-de-napoleon', commonsFile: 'Jacques-Louis David - The Coronation of Napoleon (1805-1807).jpg' },
+  { id: 'mort-de-sardanapale', commonsFile: 'Mort de Sardanapale - Eugène Delacroix - Musée du Louvre Peintures RF 2346.jpg' },
+  { id: 'pestiferes-de-jaffa', commonsFile: 'Antoine-Jean Gros - Bonaparte Visiting the Plague Victims of Jaffa.jpeg' },
+  { id: 'les-sabines', commonsFile: 'The Intervention of the Sabine Women - David (Louvre INV 3691).jpg' },
+
+  // ── 전시실 3 · 그랑드 갤러리 (710) ────────────────────────────────────────
+  { id: 'vierge-aux-rochers', commonsFile: 'Leonardo Da Vinci - Vergine delle Rocce (Louvre).jpg' },
+  { id: 'sainte-anne', commonsFile: 'Leonardo da Vinci - Virgin and Child with St Anne C2RMF retouched.jpg' },
+  { id: 'saint-jean-baptiste', commonsFile: 'Leonardo da Vinci - Saint John the Baptist C2RMF retouched.jpg' },
+  { id: 'la-belle-jardiniere', commonsFile: "La Vierge à l'Enfant avec le petit saint Jean Baptiste - Raphaël - Musée du Louvre Peintures INV 602 ; MR 433.jpg" },
+  { id: 'le-condottiere', commonsFile: 'Antonello da Messina - Portrait of a Man (Il Condottiere) cleaned version.jpg' },
+  { id: 'saint-sebastien', commonsFile: 'Saint Sebastian by Mantegna (Louvre).jpg' },
 ];
 
 /** HTML 태그를 벗겨 평문으로 (Commons 메타데이터는 HTML 조각으로 옵니다) */
@@ -45,13 +62,13 @@ const stripHtml = (s) =>
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 /** Commons는 연속 요청에 429를 돌려주므로 지수 백오프로 재시도합니다. */
-async function withRetry(label, fn, attempts = 5) {
+async function withRetry(label, fn, attempts = 7) {
   for (let i = 1; ; i++) {
     try {
       return await fn();
     } catch (err) {
       if (i >= attempts) throw err;
-      const wait = 1500 * 2 ** (i - 1);
+      const wait = Math.min(60000, 4000 * 2 ** (i - 1));
       console.log(`  … ${label} 재시도 ${i}/${attempts - 1} (${wait}ms): ${err.message}`);
       await sleep(wait);
     }
@@ -75,6 +92,16 @@ function thumbWidthFor(width, height) {
 
 async function fetchOne({ id, commonsFile }) {
   const title = `File:${commonsFile}`;
+
+  // 이미 받아 둔 파일은 건너뛴다 (Commons 요청 제한에 걸려도 이어받을 수 있도록).
+  // 다시 받으려면 FORCE=1 npm run fetch-images 또는 .cache/originals 를 비운다.
+  if (!process.env.FORCE) {
+    const cached = await readCachedMeta(id);
+    if (cached) {
+      console.log(`· ${id}.jpg 이미 있음 — 건너뜀 (${cached.pixels})`);
+      return cached;
+    }
+  }
 
   // 1) 원본 크기 + 라이선스 메타데이터
   const probe = await api({
@@ -127,10 +154,21 @@ async function fetchOne({ id, commonsFile }) {
     originalPixels: `${info.width}x${info.height}`,
     sizeKb: Math.round(bytes.length / 1024),
   };
+  await writeFile(resolve(CACHE_DIR, `${id}.meta.json`), JSON.stringify(credit, null, 2), 'utf8');
   console.log(
     `✓ .cache/originals/${id}.jpg  ${credit.originalPixels} → ${credit.pixels}  ${credit.sizeKb} KB  [${credit.license}]`,
   );
   return credit;
+}
+
+/** 이전 실행에서 받아 둔 원본 + 메타데이터가 있으면 돌려준다 */
+async function readCachedMeta(id) {
+  try {
+    await stat(resolve(CACHE_DIR, `${id}.jpg`));
+    return JSON.parse(await readFile(resolve(CACHE_DIR, `${id}.meta.json`), 'utf8'));
+  } catch {
+    return null;
+  }
 }
 
 async function main() {
@@ -139,7 +177,7 @@ async function main() {
   const credits = [];
   for (const target of TARGETS) {
     credits.push(await fetchOne(target)); // Commons 예절상 순차 요청
-    await sleep(1200);
+    await sleep(3500); // Commons 요청 제한(429)을 피하기 위한 간격
   }
 
   const md = [

@@ -2,11 +2,11 @@
 <html lang="ko">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta
       name="description"
-      content="루브르 박물관 Salle des États에서 영감을 받은 교육용 가상 전시실 — 1인칭으로 걸어 다니며 16세기 베네치아 회화를 감상합니다."
+      content="루브르 박물관에서 영감을 받은 교육용 가상 전시실 — 로비와 세 전시실을 3인칭 아바타로 걸어 다니며 감상합니다."
     />
 
     <!-- 본문 폰트: Pretendard (동적 서브셋). 받지 못하면 Noto Sans KR → 시스템 한글 폰트로 떨어집니다. -->
@@ -16,18 +16,35 @@
       href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
     />
 
-    <title>Salle des États — 교육용 가상 전시실</title>
+    <title>Musée Virtuel — 루브르 교육용 가상 전시실</title>
   </head>
   <body>
     <canvas id="scene"></canvas>
 
-    <!-- 조준점 + 호버 중인 작품 이름 -->
+    <!-- 현재 위치 막대 -->
+    <header id="location-bar" class="hidden">
+      <div class="loc-text">
+        <strong id="loc-name"></strong>
+        <span id="loc-sub"></span>
+      </div>
+      <span id="loc-count"></span>
+      <button id="loc-menu" type="button">전시실 <kbd>M</kbd></button>
+    </header>
+
+    <!-- 조준점 + 바라보는 대상 -->
     <div id="hud" class="hidden" aria-hidden="true">
       <div id="crosshair"></div>
       <div id="hover-label"></div>
     </div>
 
-    <!-- 우측 작품 정보 패널 -->
+    <!-- 모바일 조작 레이어 -->
+    <div id="touch-layer" class="hidden">
+      <div id="joystick" class="hidden"><div id="joystick-knob"></div></div>
+      <button id="touch-view" type="button" aria-label="시점 전환">시점</button>
+      <button id="touch-enter" type="button" class="hidden">입장하기</button>
+    </div>
+
+    <!-- 우측 작품 정보 패널 (모바일에서는 하단 시트) -->
     <aside id="info-panel" class="hidden" aria-live="polite">
       <button id="info-close" type="button" aria-label="정보 패널 닫기">×</button>
       <p id="info-eyebrow"></p>
@@ -41,7 +58,7 @@
       <p id="info-credit"></p>
     </aside>
 
-    <!-- 전체 화면 작품 뷰어 ("크게 보기") -->
+    <!-- 전체 화면 작품 뷰어 -->
     <div id="viewer" class="hidden" role="dialog" aria-modal="true" aria-label="작품 크게 보기">
       <button id="viewer-close" type="button" aria-label="뷰어 닫기">×</button>
       <img id="viewer-img" alt="" draggable="false" />
@@ -53,22 +70,66 @@
       </div>
     </div>
 
+    <!-- 전시실 목록 메뉴 -->
+    <div id="room-menu" class="hidden" role="dialog" aria-modal="true" aria-label="전시실 목록">
+      <div class="menu-card">
+        <button id="room-menu-close" type="button" aria-label="메뉴 닫기">×</button>
+        <p class="menu-eyebrow">Musée du Louvre</p>
+        <h2>전시실 이동</h2>
+        <div id="room-menu-list"></div>
+        <p class="menu-foot">주소창의 <code>?room=</code> 으로도 바로 들어올 수 있습니다.</p>
+      </div>
+    </div>
+
+    <!-- 방을 옮길 때의 로딩 막 -->
+    <div id="travel" class="hidden" aria-live="polite">
+      <div class="travel-inner">
+        <p id="travel-name"></p>
+        <div class="load-track"><div id="travel-bar"></div></div>
+        <p id="travel-text">불러오는 중…</p>
+      </div>
+    </div>
+
+    <!-- ?debug -->
+    <pre id="debug" class="hidden"></pre>
+
     <!-- 시작 화면 -->
     <div id="start-overlay">
       <div class="start-card">
-        <p class="start-eyebrow">Musée du Louvre · Aile Denon · Salle 711</p>
-        <h1>Salle des États</h1>
-        <p class="start-sub">루브르 박물관 Salle des États에서 영감을 받은 교육용 가상 전시실</p>
-        <p class="start-intro" id="start-intro"></p>
+        <p class="start-eyebrow">Musée du Louvre · Aile Denon</p>
+        <h1>Musée Virtuel</h1>
+        <p class="start-sub">루브르 박물관에서 영감을 받은 교육용 가상 전시실</p>
+        <p class="start-intro">
+          유리 피라미드 아래 나폴레옹 홀에서 출발해 세 전시실을 걸어 다니며 18점의 실제 소장품을 감상합니다.
+          모든 그림은 루브르 공식 기록의 실제 치수 그대로 걸려 있습니다.
+        </p>
+
+        <section class="profile">
+          <h2>관람객 정보</h2>
+          <label for="nickname">닉네임</label>
+          <input id="nickname" type="text" placeholder="관람객" autocomplete="off" spellcheck="false" />
+          <label id="color-label">아바타 색상</label>
+          <div id="avatar-colors" role="group" aria-labelledby="color-label"></div>
+          <p class="profile-note">로그인은 없습니다. 이 브라우저에만 저장됩니다.</p>
+        </section>
 
         <section class="controls">
           <h2>조작법</h2>
-          <ul>
+          <ul id="controls-desktop">
             <li><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd><span>걷기</span></li>
             <li><kbd>Shift</kbd><span>빠르게 걷기</span></li>
             <li><kbd>마우스</kbd><span>시점 회전</span></li>
-            <li><kbd>클릭</kbd><span>조준점에 들어온 그림의 정보 보기</span></li>
-            <li><kbd>Esc</kbd><span>정보 패널·뷰어 닫기 · 시작 화면으로</span></li>
+            <li><kbd>클릭</kbd><span>작품 정보 보기 · 문으로 입장</span></li>
+            <li><kbd>V</kbd><span>1인칭 / 3인칭 전환</span></li>
+            <li><kbd>M</kbd><span>전시실 목록</span></li>
+            <li><kbd>Esc</kbd><span>열린 창 닫기 · 시작 화면으로</span></li>
+          </ul>
+          <ul id="controls-touch">
+            <li><kbd>왼쪽</kbd><span>조이스틱으로 걷기 (끝까지 밀면 빠르게)</span></li>
+            <li><kbd>오른쪽</kbd><span>드래그로 시점 회전</span></li>
+            <li><kbd>탭</kbd><span>작품 정보 보기 · 문으로 입장</span></li>
+            <li><kbd>시점</kbd><span>1인칭 / 3인칭 전환</span></li>
+            <li><kbd>전시실</kbd><span>상단 버튼으로 전시실 이동</span></li>
           </ul>
           <p class="controls-tip">
             바닥의 옅은 원은 작품이 가장 알맞게 보이는 위치입니다. 그 위에 서서 감상해 보세요.
@@ -79,7 +140,7 @@
           <div class="load-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
             <div id="load-bar"></div>
           </div>
-          <p id="load-text">작품 이미지 불러오는 중… 0%</p>
+          <p id="load-text">준비 중… 0%</p>
         </div>
 
         <button id="enter-button" type="button" disabled>불러오는 중… 0%</button>

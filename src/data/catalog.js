@@ -2,42 +2,63 @@
  * 전시 데이터 접근 계층.
  *
  * 3D 씬·UI 코드는 JSON 파일을 직접 읽지 않고 이 모듈만 거칩니다.
- * 다음 단계에서 전시실이 여러 개가 되거나 데이터가 서버/DB 로 옮겨가더라도
- * 이 파일의 함수 시그니처만 유지하면 씬·조작 코드는 그대로 둘 수 있습니다.
+ * 데이터가 서버/DB 로 옮겨가더라도 아래 함수 시그니처만 유지하면
+ * 씬·조작 코드는 그대로 둘 수 있습니다.
  */
 import roomsData from './rooms.json';
 import paintingsData from './paintings.json';
+
+const DEFAULTS = roomsData.defaults;
 
 /** 에셋 경로를 배포 base 기준 URL 로 바꾼다 ("images/a.webp" → "/images/a.webp") */
 export function assetUrl(path) {
   return import.meta.env.BASE_URL + path;
 }
 
-/** @returns {{id: string, nameKo: string, nameFr: string, subtitle: string}[]} 로비에 쓸 전시실 목록 */
+/** 로비·전시실 목록 (메뉴와 로비 포털에 쓴다) */
 export function listRooms() {
-  return roomsData.rooms.map(({ id, nameKo, nameFr, subtitle }) => ({
-    id,
-    nameKo,
-    nameFr,
-    subtitle,
+  return roomsData.rooms.map((r) => ({
+    id: r.id,
+    kind: r.kind,
+    nameKo: r.nameKo,
+    nameFr: r.nameFr,
+    subtitle: r.subtitle,
+    menuLabel: r.menuLabel,
+    paintingCount: paintingsData.paintings.filter((p) => p.room === r.id).length,
   }));
 }
 
-/** 기본 전시실 id (전시실이 하나뿐인 현재는 이것이 곧 진입점) */
+/** 첫 진입 공간 */
 export function defaultRoomId() {
   return roomsData.rooms[0].id;
 }
 
-/** @returns {object} 전시실 전체 정의 (치수·벽·집기·조명·규칙) */
-export function getRoom(roomId) {
-  const room = roomsData.rooms.find((r) => r.id === roomId);
-  if (!room) throw new Error(`전시실을 찾을 수 없습니다: ${roomId}`);
-  return room;
+export function hasRoom(roomId) {
+  return roomsData.rooms.some((r) => r.id === roomId);
 }
 
 /**
- * 전시실에 걸린 작품 목록. 걸이 높이와 감상 위치 거리는
- * rooms.json 의 규칙으로 여기서 미리 계산해 넘긴다 — 씬 코드는 숫자만 쓰면 된다.
+ * 공간 전체 정의. defaults 의 조명·규칙을 방 설정으로 덮어쓴 결과를 돌려준다.
+ */
+export function getRoom(roomId) {
+  const room = roomsData.rooms.find((r) => r.id === roomId);
+  if (!room) throw new Error(`공간을 찾을 수 없습니다: ${roomId}`);
+  return {
+    ...room,
+    hangingRule: room.hangingRule ?? DEFAULTS.hangingRule,
+    viewingSpot: room.viewingSpot ?? DEFAULTS.viewingSpot,
+    lighting: { ...DEFAULTS.lighting, ...(room.lighting ?? {}) },
+    portals: (room.portals ?? []).map((portal) => ({
+      ...portal,
+      targetName: roomsData.rooms.find((r) => r.id === portal.target)?.nameKo ?? portal.target,
+    })),
+  };
+}
+
+/**
+ * 전시실에 걸린 작품 목록.
+ * 걸이 높이와 감상 위치 거리는 rooms.json 의 규칙으로 여기서 미리 계산해 넘긴다 —
+ * 씬 코드는 숫자만 쓰면 된다.
  */
 export function getPaintings(roomId) {
   const room = getRoom(roomId);

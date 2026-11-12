@@ -29,9 +29,13 @@ export function createInfoPanel({ onClose, onZoom } = {}) {
   function show(painting) {
     current = painting;
 
-    els.eyebrow.textContent = painting.inventory
-      ? `Musée du Louvre · ${painting.inventory}`
-      : 'Musée du Louvre';
+    els.eyebrow.textContent = [
+      'Musée du Louvre',
+      painting.louvreRoom,
+      painting.inventory,
+    ]
+      .filter(Boolean)
+      .join(' · ');
     els.title.textContent = painting.titleKo;
     els.titleOriginal.textContent = painting.titleOriginal;
 

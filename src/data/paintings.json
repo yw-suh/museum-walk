@@ -1,9 +1,10 @@
 {
-  "$comment": "작품 데이터. size는 루브르 공식 소장품 기록(collections.louvre.fr)의 실제 치수(cm)이며 3D 공간에 cm→m 로 그대로 환산해 배치된다. placement.wall 은 rooms.json 의 walls[].id 를 가리킨다. 걸이 높이는 rooms.json 의 hangingRule 에 따라 자동 계산되며, placement.centerHeight 를 적으면 그 값이 우선한다.",
+  "$comment": "작품 데이터. size 는 루브르 공식 소장품 기록(collections.louvre.fr)의 실제 치수(cm)이며 3D 공간에 cm→m 로 그대로 환산해 배치된다. placement.wall 은 rooms.json 의 walls[].id 를 가리킨다. 걸이 높이는 defaults.hangingRule 로 자동 계산되며 placement.centerHeight 를 적으면 그 값이 우선한다. louvreRoom 은 그 작품이 실제로 걸린 루브르 전시실 번호다.",
   "paintings": [
     {
       "id": "mona-lisa",
       "room": "salle-des-etats",
+      "louvreRoom": "Salle 711",
       "titleKo": "모나리자",
       "titleOriginal": "Portrait de Lisa Gherardini, épouse de Francesco del Giocondo, dit La Joconde ou Monna Lisa",
       "artistKo": "레오나르도 다 빈치",
@@ -29,10 +30,10 @@
         { "type": "wikipedia-ko", "label": "위키백과(한국어) — 모나리자", "url": "https://ko.wikipedia.org/wiki/모나리자" }
       ]
     },
-
     {
       "id": "noces-de-cana",
       "room": "salle-des-etats",
+      "louvreRoom": "Salle 711",
       "titleKo": "가나의 혼인잔치",
       "titleOriginal": "Les Noces de Cana",
       "artistKo": "파올로 베로네세",
@@ -58,10 +59,10 @@
         { "type": "wikipedia-ko", "label": "위키백과(한국어) — 가나의 혼인잔치", "url": "https://ko.wikipedia.org/wiki/가나의_혼인잔치" }
       ]
     },
-
     {
       "id": "pelerins-emmaus",
       "room": "salle-des-etats",
+      "louvreRoom": "Salle 711",
       "titleKo": "엠마오의 순례자",
       "titleOriginal": "Les Pèlerins d'Emmaüs",
       "artistKo": "파올로 베로네세",
@@ -88,10 +89,10 @@
         { "type": "wikipedia-en", "label": "위키백과(영문) — Supper at Emmaus", "url": "https://en.wikipedia.org/wiki/Supper_at_Emmaus_(Veronese)" }
       ]
     },
-
     {
       "id": "suzanne-au-bain",
       "room": "salle-des-etats",
+      "louvreRoom": "Salle 711",
       "titleKo": "목욕하는 수산나",
       "titleOriginal": "Suzanne au bain",
       "artistKo": "틴토레토",
@@ -118,10 +119,10 @@
         { "type": "wikipedia-en", "label": "위키백과(영문·작가) — Tintoretto", "url": "https://en.wikipedia.org/wiki/Tintoretto" }
       ]
     },
-
     {
       "id": "homme-au-gant",
       "room": "salle-des-etats",
+      "louvreRoom": "Salle 711",
       "titleKo": "장갑을 낀 남자",
       "titleOriginal": "Portrait d'homme, dit L'Homme au gant",
       "artistKo": "티치아노",
@@ -148,10 +149,10 @@
         { "type": "wikipedia-en", "label": "위키백과(영문) — Man with a Glove", "url": "https://en.wikipedia.org/wiki/Man_with_a_Glove" }
       ]
     },
-
     {
       "id": "femme-au-miroir",
       "room": "salle-des-etats",
+      "louvreRoom": "Salle 711",
       "titleKo": "거울을 보는 여인",
       "titleOriginal": "La Femme au miroir",
       "artistKo": "티치아노",
@@ -176,6 +177,368 @@
         { "type": "louvre", "label": "루브르 공식 소장품 페이지", "url": "https://collections.louvre.fr/en/ark:/53355/cl010062292" },
         { "type": "wikipedia-ko", "label": "위키백과(작가) — 티치아노", "url": "https://ko.wikipedia.org/wiki/티치아노_베첼리오" },
         { "type": "wikipedia-en", "label": "위키백과(영문) — Woman with a Mirror", "url": "https://en.wikipedia.org/wiki/Woman_with_a_Mirror" }
+      ]
+    },
+
+    {
+      "id": "sacre-de-napoleon",
+      "room": "peinture-francaise",
+      "louvreRoom": "Salle 702 (Daru)",
+      "titleKo": "나폴레옹 1세의 대관식",
+      "titleOriginal": "Le Couronnement de l'empereur Napoléon Ier et de l'impératrice Joséphine dans la cathédrale Notre-Dame de Paris, le 2 décembre 1804",
+      "artistKo": "자크루이 다비드",
+      "artistOriginal": "Jacques-Louis David",
+      "yearLabel": "1807년",
+      "mediumKo": "캔버스에 유채",
+      "inventory": "INV 3699 ; MR 1437",
+      "size": { "heightCm": 621, "widthCm": 979 },
+      "scaleNote": "높이 6.2 m · 너비 9.8 m. 「가나의 혼인잔치」에 이어 루브르에서 두 번째로 큰 그림입니다.",
+      "description": "1804년 12월 2일 노트르담 대성당에서 열린 대관식을 기록한 공식 화면이다. 다비드는 교황이 관을 씌우는 장면 대신, 나폴레옹이 스스로 관을 든 채 조제핀에게 씌워 주는 순간을 골라 권력의 출처를 바꿔 놓았다. 실제로는 참석하지 않은 모후를 중앙 관람석에 그려 넣는 등 정치적 각색이 곳곳에 숨어 있다.",
+      "image": "images/sacre-de-napoleon.webp",
+      "imageLarge": "images/large/sacre-de-napoleon.webp",
+      "frame": { "color": "#8a6a2a", "width": 0.24, "depth": 0.16 },
+      "placement": { "wall": "south", "face": "-", "offset": -9 },
+      "credit": {
+        "source": "Wikimedia Commons",
+        "file": "Jacques-Louis David - The Coronation of Napoleon (1805-1807).jpg",
+        "fileUrl": "https://commons.wikimedia.org/wiki/File:Jacques-Louis_David_-_The_Coronation_of_Napoleon_(1805-1807).jpg",
+        "license": "Public domain"
+      },
+      "links": [
+        { "type": "louvre", "label": "루브르 공식 소장품 페이지", "url": "https://collections.louvre.fr/en/ark:/53355/cl010065720" },
+        { "type": "wikipedia-ko", "label": "위키백과(한국어) — 나폴레옹 1세의 대관식", "url": "https://ko.wikipedia.org/wiki/나폴레옹_1세의_대관식" },
+        { "type": "wikipedia-en", "label": "위키백과(영문) — The Coronation of Napoleon", "url": "https://en.wikipedia.org/wiki/The_Coronation_of_Napoleon" }
+      ]
+    },
+    {
+      "id": "radeau-de-la-meduse",
+      "room": "peinture-francaise",
+      "louvreRoom": "Salle 700 (Mollien)",
+      "titleKo": "메두사호의 뗏목",
+      "titleOriginal": "Le Radeau de la Méduse",
+      "artistKo": "테오도르 제리코",
+      "artistOriginal": "Théodore Géricault",
+      "yearLabel": "1818~1819년",
+      "mediumKo": "캔버스에 유채",
+      "inventory": "INV 4884 ; C 51",
+      "size": { "heightCm": 491, "widthCm": 716 },
+      "scaleNote": "높이 4.9 m · 너비 7.2 m. 등장인물이 실물 크기여서, 앞에 서면 뗏목 위에 함께 선 느낌이 듭니다.",
+      "description": "1816년 세네갈 앞바다에서 좌초한 프리깃함 메두사호의 생존자들을 그렸다. 150명이 임시 뗏목에 올랐으나 밧줄이 끊긴 뒤 13일을 표류했고, 구조선 아르귀스호가 발견했을 때 살아남은 사람은 열다섯 명뿐이었다. 제리코는 생존자를 직접 인터뷰하고 시신을 관찰해 가며 그려, 당대의 국가적 추문을 거대한 역사화의 형식으로 고발했다.",
+      "image": "images/radeau-de-la-meduse.webp",
+      "imageLarge": "images/large/radeau-de-la-meduse.webp",
+      "frame": { "color": "#7a5c28", "width": 0.2, "depth": 0.14 },
+      "placement": { "wall": "south", "face": "-", "offset": 7 },
+      "credit": {
+        "source": "Wikimedia Commons",
+        "file": "JEAN LOUIS THÉODORE GÉRICAULT - La Balsa de la Medusa (Museo del Louvre, 1818-19).jpg",
+        "fileUrl": "https://commons.wikimedia.org/wiki/File:JEAN_LOUIS_TH%C3%89ODORE_G%C3%89RICAULT_-_La_Balsa_de_la_Medusa_(Museo_del_Louvre,_1818-19).jpg",
+        "license": "Public domain"
+      },
+      "links": [
+        { "type": "louvre", "label": "루브르 공식 소장품 페이지", "url": "https://collections.louvre.fr/en/ark:/53355/cl010059199" },
+        { "type": "wikipedia-ko", "label": "위키백과(한국어) — 메두사호의 뗏목", "url": "https://ko.wikipedia.org/wiki/메두사호의_뗏목" },
+        { "type": "wikipedia-en", "label": "위키백과(영문) — The Raft of the Medusa", "url": "https://en.wikipedia.org/wiki/The_Raft_of_the_Medusa" }
+      ]
+    },
+    {
+      "id": "pestiferes-de-jaffa",
+      "room": "peinture-francaise",
+      "louvreRoom": "Salle 700 (Mollien)",
+      "titleKo": "자파의 페스트 환자를 찾은 나폴레옹",
+      "titleOriginal": "Bonaparte visitant les pestiférés de Jaffa (11 mars 1799)",
+      "artistKo": "앙투안장 그로",
+      "artistOriginal": "Antoine-Jean, baron Gros",
+      "yearLabel": "1804년",
+      "mediumKo": "캔버스에 유채",
+      "inventory": "INV 5064 ; MR 1782",
+      "size": { "heightCm": 523, "widthCm": 715 },
+      "scaleNote": "높이 5.2 m · 너비 7.2 m. 아치 아래 공간이 실제 건물처럼 느껴지도록 계산된 크기입니다.",
+      "description": "1799년 시리아 원정 중 자파의 모스크에 차려진 야전 병원을 찾은 보나파르트를 그렸다. 장갑을 벗고 페스트 환자의 종기를 맨손으로 만지는 모습은 왕의 치유 능력이라는 오래된 도상을 빌려 온 것으로, 원정의 실패를 덮으려는 선전의 성격이 짙다. 동방의 빛과 색채를 끌어들인 이 그림은 뒤이은 낭만주의 세대에게 큰 자극이 되었다.",
+      "image": "images/pestiferes-de-jaffa.webp",
+      "imageLarge": "images/large/pestiferes-de-jaffa.webp",
+      "frame": { "color": "#7a5c28", "width": 0.2, "depth": 0.14 },
+      "placement": { "wall": "north", "face": "+", "offset": -8 },
+      "credit": {
+        "source": "Wikimedia Commons",
+        "file": "Antoine-Jean Gros - Bonaparte Visiting the Plague Victims of Jaffa.jpeg",
+        "fileUrl": "https://commons.wikimedia.org/wiki/File:Antoine-Jean_Gros_-_Bonaparte_Visiting_the_Plague_Victims_of_Jaffa.jpeg",
+        "license": "Public domain"
+      },
+      "links": [
+        { "type": "louvre", "label": "루브르 공식 소장품 페이지", "url": "https://collections.louvre.fr/en/ark:/53355/cl010062570" },
+        { "type": "wikipedia-ko", "label": "위키백과(작가) — 앙투안장 그로", "url": "https://ko.wikipedia.org/wiki/앙투안장_그로" },
+        { "type": "wikipedia-en", "label": "위키백과(영문) — Bonaparte Visiting the Plague Victims of Jaffa", "url": "https://en.wikipedia.org/wiki/Bonaparte_Visiting_the_Plague_Victims_of_Jaffa" }
+      ]
+    },
+    {
+      "id": "mort-de-sardanapale",
+      "room": "peinture-francaise",
+      "louvreRoom": "Salle 700 (Mollien)",
+      "titleKo": "사르다나팔루스의 죽음",
+      "titleOriginal": "Mort de Sardanapale",
+      "artistKo": "외젠 들라크루아",
+      "artistOriginal": "Eugène Delacroix",
+      "yearLabel": "1827년",
+      "mediumKo": "캔버스에 유채",
+      "inventory": "RF 2346",
+      "size": { "heightCm": 392, "widthCm": 496 },
+      "scaleNote": "높이 3.9 m · 너비 5.0 m. 성인 두 명을 세로로 쌓은 높이에 작은 방 하나의 폭입니다.",
+      "description": "패배를 앞둔 아시리아의 왕 사르다나팔루스가 자신의 애첩과 말, 보물까지 모두 없애라 명하고 침상에서 그 광경을 지켜보는 장면이다. 바이런의 희곡에서 출발했지만 들라크루아는 원작에 없는 학살을 만들어 넣어 붉은 침대보를 중심으로 소용돌이치는 구도를 짰다. 1828년 살롱에서 혹평을 받았고, 낭만주의 색채와 격정의 선언처럼 남았다.",
+      "image": "images/mort-de-sardanapale.webp",
+      "imageLarge": "images/large/mort-de-sardanapale.webp",
+      "frame": { "color": "#7a5c28", "width": 0.18, "depth": 0.12 },
+      "placement": { "wall": "north", "face": "+", "offset": 4 },
+      "credit": {
+        "source": "Wikimedia Commons",
+        "file": "Mort de Sardanapale - Eugène Delacroix - Musée du Louvre Peintures RF 2346.jpg",
+        "fileUrl": "https://commons.wikimedia.org/wiki/File:Mort_de_Sardanapale_-_Eug%C3%A8ne_Delacroix_-_Mus%C3%A9e_du_Louvre_Peintures_RF_2346.jpg",
+        "license": "Public domain"
+      },
+      "links": [
+        { "type": "louvre", "label": "루브르 공식 소장품 페이지", "url": "https://collections.louvre.fr/en/ark:/53355/cl010065757" },
+        { "type": "wikipedia-ko", "label": "위키백과(작가) — 외젠 들라크루아", "url": "https://ko.wikipedia.org/wiki/외젠_들라크루아" },
+        { "type": "wikipedia-en", "label": "위키백과(영문) — The Death of Sardanapalus", "url": "https://en.wikipedia.org/wiki/The_Death_of_Sardanapalus" }
+      ]
+    },
+    {
+      "id": "liberte-guidant-le-peuple",
+      "room": "peinture-francaise",
+      "louvreRoom": "Salle 700 (Mollien)",
+      "titleKo": "민중을 이끄는 자유의 여신",
+      "titleOriginal": "Le 28 juillet 1830. La Liberté guidant le peuple",
+      "artistKo": "외젠 들라크루아",
+      "artistOriginal": "Eugène Delacroix",
+      "yearLabel": "1830년",
+      "mediumKo": "캔버스에 유채",
+      "inventory": "RF 129",
+      "size": { "heightCm": 260, "widthCm": 325 },
+      "scaleNote": "높이 2.6 m · 너비 3.3 m. 방 하나의 벽면 절반 정도로, 이 방에서는 오히려 작은 축에 듭니다.",
+      "description": "1830년 7월 혁명의 사흘 중 마지막 날을 그렸다. 프리기아 모자를 쓰고 삼색기를 든 자유의 여신은 신화적 존재이면서 맨발로 바리케이드를 넘는 실제 인물처럼 그려져, 알레고리와 르포르타주가 한 화면에서 만난다. 부르주아와 노동자, 소년이 나란히 선 구성은 혁명을 계급을 가로지르는 사건으로 보여 준다.",
+      "image": "images/liberte-guidant-le-peuple.webp",
+      "imageLarge": "images/large/liberte-guidant-le-peuple.webp",
+      "frame": { "color": "#8a6a2a", "width": 0.16, "depth": 0.11 },
+      "placement": { "wall": "east", "face": "-", "offset": 0 },
+      "credit": {
+        "source": "Wikimedia Commons",
+        "file": "La Liberté guidant le peuple - Eugène Delacroix - Musée du Louvre Peintures RF 129 - après restauration 2024.jpg",
+        "fileUrl": "https://commons.wikimedia.org/wiki/File:La_Libert%C3%A9_guidant_le_peuple_-_Eug%C3%A8ne_Delacroix_-_Mus%C3%A9e_du_Louvre_Peintures_RF_129_-_apr%C3%A8s_restauration_2024.jpg",
+        "license": "Public domain"
+      },
+      "links": [
+        { "type": "louvre", "label": "루브르 공식 소장품 페이지", "url": "https://collections.louvre.fr/en/ark:/53355/cl010065872" },
+        { "type": "wikipedia-ko", "label": "위키백과(한국어) — 민중을 이끄는 자유의 여신", "url": "https://ko.wikipedia.org/wiki/민중을_이끄는_자유의_여신" },
+        { "type": "wikipedia-en", "label": "위키백과(영문) — Liberty Leading the People", "url": "https://en.wikipedia.org/wiki/Liberty_Leading_the_People" }
+      ]
+    },
+    {
+      "id": "les-sabines",
+      "room": "peinture-francaise",
+      "louvreRoom": "Salle 702 (Daru)",
+      "titleKo": "사비니 여인들의 중재",
+      "titleOriginal": "Les Sabines",
+      "artistKo": "자크루이 다비드",
+      "artistOriginal": "Jacques-Louis David",
+      "yearLabel": "1799년",
+      "mediumKo": "캔버스에 유채",
+      "inventory": "INV 3691 ; L 3710",
+      "size": { "heightCm": 385, "widthCm": 522 },
+      "scaleNote": "높이 3.9 m · 너비 5.2 m. 앞쪽 인물들이 실물보다 조금 크게 그려져 있습니다.",
+      "description": "로마인에게 납치된 사비니 여인들이, 몇 해 뒤 복수하러 온 아버지와 남편 사이에 아이를 안고 뛰어드는 장면이다. 다비드는 공포정치가 끝난 뒤 수감 생활에서 풀려나 이 그림을 그렸고, 화해의 호소로 읽히기를 바랐다. 고대 그리스 도기화를 본뜬 선명한 윤곽과 나체 전사들은 신고전주의의 새로운 단계를 보여 준다.",
+      "image": "images/les-sabines.webp",
+      "imageLarge": "images/large/les-sabines.webp",
+      "frame": { "color": "#8a6a2a", "width": 0.18, "depth": 0.12 },
+      "placement": { "wall": "west", "face": "+", "offset": -3.2 },
+      "credit": {
+        "source": "Wikimedia Commons",
+        "file": "The Intervention of the Sabine Women - David (Louvre INV 3691).jpg",
+        "fileUrl": "https://commons.wikimedia.org/wiki/File:The_Intervention_of_the_Sabine_Women_-_David_(Louvre_INV_3691).jpg",
+        "license": "Public domain"
+      },
+      "links": [
+        { "type": "louvre", "label": "루브르 공식 소장품 페이지", "url": "https://collections.louvre.fr/en/ark:/53355/cl010065426" },
+        { "type": "wikipedia-ko", "label": "위키백과(작가) — 자크루이 다비드", "url": "https://ko.wikipedia.org/wiki/자크루이_다비드" },
+        { "type": "wikipedia-en", "label": "위키백과(영문) — The Intervention of the Sabine Women", "url": "https://en.wikipedia.org/wiki/The_Intervention_of_the_Sabine_Women" }
+      ]
+    },
+
+    {
+      "id": "saint-sebastien",
+      "room": "grande-galerie",
+      "louvreRoom": "Salle 710 (1ère travée)",
+      "titleKo": "성 세바스티아누스",
+      "titleOriginal": "Saint Sébastien",
+      "artistKo": "안드레아 만테냐",
+      "artistOriginal": "Andrea Mantegna",
+      "yearLabel": "1475~1500년",
+      "mediumKo": "캔버스에 템페라",
+      "inventory": "RF 1766",
+      "size": { "heightCm": 255, "widthCm": 140 },
+      "scaleNote": "높이 2.55 m — 성인 키의 1.5배. 성인이 거의 실물 크기로 그려져 있습니다.",
+      "description": "화살에 꿰뚫린 성인이 무너진 고대 개선문 기둥에 묶여 있고, 발밑에는 부서진 조각과 잘린 발이 흩어져 있다. 만테냐는 고고학자처럼 정확하게 고대 건축을 재현하면서, 인체를 돌처럼 단단하게 조각해 놓았다. 아래쪽 양초 심지에 라틴어로 \"신의 뜻 말고는 아무것도 아니다\"라는 문구가 적혀 있다.",
+      "image": "images/saint-sebastien.webp",
+      "imageLarge": "images/large/saint-sebastien.webp",
+      "frame": { "color": "#6b5321", "width": 0.13, "depth": 0.1 },
+      "placement": { "wall": "west", "face": "+", "offset": -20 },
+      "credit": {
+        "source": "Wikimedia Commons",
+        "file": "Saint Sebastian by Mantegna (Louvre).jpg",
+        "fileUrl": "https://commons.wikimedia.org/wiki/File:Saint_Sebastian_by_Mantegna_(Louvre).jpg",
+        "license": "Public domain"
+      },
+      "links": [
+        { "type": "louvre", "label": "루브르 공식 소장품 페이지", "url": "https://collections.louvre.fr/en/ark:/53355/cl010064796" },
+        { "type": "wikipedia-ko", "label": "위키백과(작가) — 안드레아 만테냐", "url": "https://ko.wikipedia.org/wiki/안드레아_만테냐" },
+        { "type": "wikipedia-en", "label": "위키백과(영문) — Saint Sebastian (Mantegna)", "url": "https://en.wikipedia.org/wiki/Saint_Sebastian_(Mantegna)" }
+      ]
+    },
+    {
+      "id": "le-condottiere",
+      "room": "grande-galerie",
+      "louvreRoom": "Salle 710 (1ère travée)",
+      "titleKo": "콘도티에레",
+      "titleOriginal": "Portrait d'homme (Giorgio Corner ?), dit Le Condottiere",
+      "artistKo": "안토넬로 다 메시나",
+      "artistOriginal": "Antonello da Messina",
+      "yearLabel": "1475년",
+      "mediumKo": "패널에 유채",
+      "inventory": "MI 693",
+      "size": { "heightCm": 36.2, "widthCm": 30 },
+      "scaleNote": "36 × 30 cm — A4 용지(30 × 21 cm)보다 조금 큰 정도. 이 회랑에서 가장 작은 그림입니다.",
+      "description": "이름이 확실하지 않은 남자의 흉상으로, 꽉 다문 입과 입술의 흉터 때문에 19세기부터 \"콘도티에레(용병대장)\"로 불려 왔다. 안토넬로는 플랑드르식 유화 기법을 이탈리아에 들여온 화가로, 어두운 배경에서 얼굴만 또렷이 떠오르게 하는 초상 형식을 베네치아에 퍼뜨렸다. 아래쪽 난간에 붙은 종잇조각에 \"안토넬루스 메사네우스가 나를 그렸다\"는 서명이 있다.",
+      "image": "images/le-condottiere.webp",
+      "imageLarge": "images/large/le-condottiere.webp",
+      "frame": { "color": "#4a3317", "width": 0.08, "depth": 0.07 },
+      "placement": { "wall": "east", "face": "-", "offset": -17 },
+      "credit": {
+        "source": "Wikimedia Commons",
+        "file": "Antonello da Messina - Portrait of a Man (Il Condottiere) cleaned version.jpg",
+        "fileUrl": "https://commons.wikimedia.org/wiki/File:Antonello_da_Messina_-_Portrait_of_a_Man_(Il_Condottiere)_cleaned_version.jpg",
+        "license": "Public domain"
+      },
+      "links": [
+        { "type": "louvre", "label": "루브르 공식 소장품 페이지", "url": "https://collections.louvre.fr/en/ark:/53355/cl010065016" },
+        { "type": "wikipedia-ko", "label": "위키백과(작가) — 안토넬로 다 메시나", "url": "https://ko.wikipedia.org/wiki/안토넬로_다_메시나" },
+        { "type": "wikipedia-en", "label": "위키백과(영문) — Male portraits by Antonello da Messina", "url": "https://en.wikipedia.org/wiki/Male_portraits_by_Antonello_da_Messina" }
+      ]
+    },
+    {
+      "id": "vierge-aux-rochers",
+      "room": "grande-galerie",
+      "louvreRoom": "Salle 710 (2e travée)",
+      "titleKo": "암굴의 성모",
+      "titleOriginal": "La Vierge, l'Enfant Jésus, saint Jean Baptiste et un ange, dit La Vierge aux rochers",
+      "artistKo": "레오나르도 다 빈치",
+      "artistOriginal": "Leonardo da Vinci",
+      "yearLabel": "1483~1494년",
+      "mediumKo": "패널에서 캔버스로 옮긴 유채",
+      "inventory": "INV 777 ; MR 320",
+      "size": { "heightCm": 199.5, "widthCm": 122 },
+      "scaleNote": "높이 2 m — 성인 키보다 큽니다. 모나리자(79 cm)의 두 배 반 높이입니다.",
+      "description": "밀라노의 한 신심회가 주문한 제단화로, 동굴 속에서 성모와 아기 예수, 어린 세례자 요한, 천사가 만나는 장면이다. 빛이 닿는 곳만 떠오르게 하는 명암법과 멀어질수록 푸르게 흐려지는 바위 풍경이 레오나르도 특유의 공간을 만든다. 같은 구성의 두 번째 판본이 런던 내셔널 갤러리에 있으며, 루브르 판이 먼저 그려진 것으로 본다.",
+      "image": "images/vierge-aux-rochers.webp",
+      "imageLarge": "images/large/vierge-aux-rochers.webp",
+      "frame": { "color": "#4a3317", "width": 0.12, "depth": 0.09 },
+      "placement": { "wall": "east", "face": "-", "offset": 5 },
+      "credit": {
+        "source": "Wikimedia Commons",
+        "file": "Leonardo Da Vinci - Vergine delle Rocce (Louvre).jpg",
+        "fileUrl": "https://commons.wikimedia.org/wiki/File:Leonardo_Da_Vinci_-_Vergine_delle_Rocce_(Louvre).jpg",
+        "license": "Public domain"
+      },
+      "links": [
+        { "type": "louvre", "label": "루브르 공식 소장품 페이지", "url": "https://collections.louvre.fr/en/ark:/53355/cl010062373" },
+        { "type": "wikipedia-ko", "label": "위키백과(한국어) — 암굴의 성모", "url": "https://ko.wikipedia.org/wiki/암굴의_성모" },
+        { "type": "wikipedia-en", "label": "위키백과(영문) — Virgin of the Rocks", "url": "https://en.wikipedia.org/wiki/Virgin_of_the_Rocks" }
+      ]
+    },
+    {
+      "id": "sainte-anne",
+      "room": "grande-galerie",
+      "louvreRoom": "Salle 710 (2e travée)",
+      "titleKo": "성 안나와 성 모자",
+      "titleOriginal": "La Vierge, l'Enfant Jésus et sainte Anne, dit La Sainte Anne",
+      "artistKo": "레오나르도 다 빈치",
+      "artistOriginal": "Leonardo da Vinci",
+      "yearLabel": "1503~1519년",
+      "mediumKo": "포플러 패널에 유채",
+      "inventory": "INV 776 ; MR 319",
+      "size": { "heightCm": 168, "widthCm": 113 },
+      "scaleNote": "높이 1.68 m — 성인 키와 거의 같습니다. 레오나르도가 죽을 때까지 손에서 놓지 않은 미완성작입니다.",
+      "description": "성 안나의 무릎에 앉은 성모가 어린 예수를 붙잡으려 몸을 기울이고, 예수는 희생을 뜻하는 어린 양을 끌어안고 있다. 세 인물이 하나의 피라미드로 묶이면서도 각자 다른 방향으로 움직여, 정지와 운동이 한 화면에 겹친다. 1503년경 피렌체에서 시작해 16년 넘게 손질했지만 끝내 완성하지 못했다.",
+      "image": "images/sainte-anne.webp",
+      "imageLarge": "images/large/sainte-anne.webp",
+      "frame": { "color": "#4a3317", "width": 0.12, "depth": 0.09 },
+      "placement": { "wall": "east", "face": "-", "offset": 16 },
+      "credit": {
+        "source": "Wikimedia Commons",
+        "file": "Leonardo da Vinci - Virgin and Child with St Anne C2RMF retouched.jpg",
+        "fileUrl": "https://commons.wikimedia.org/wiki/File:Leonardo_da_Vinci_-_Virgin_and_Child_with_St_Anne_C2RMF_retouched.jpg",
+        "license": "Public domain"
+      },
+      "links": [
+        { "type": "louvre", "label": "루브르 공식 소장품 페이지", "url": "https://collections.louvre.fr/en/ark:/53355/cl010066107" },
+        { "type": "wikipedia-ko", "label": "위키백과(한국어) — 성 안나와 성 모자", "url": "https://ko.wikipedia.org/wiki/성_안나와_성_모자" },
+        { "type": "wikipedia-en", "label": "위키백과(영문) — The Virgin and Child with Saint Anne", "url": "https://en.wikipedia.org/wiki/The_Virgin_and_Child_with_Saint_Anne_(Leonardo)" }
+      ]
+    },
+    {
+      "id": "saint-jean-baptiste",
+      "room": "grande-galerie",
+      "louvreRoom": "Salle 710 (2e travée)",
+      "titleKo": "세례자 요한",
+      "titleOriginal": "Saint Jean Baptiste",
+      "artistKo": "레오나르도 다 빈치",
+      "artistOriginal": "Leonardo da Vinci",
+      "yearLabel": "1508~1519년",
+      "mediumKo": "호두나무 패널에 유채",
+      "inventory": "INV 775 ; MR 318",
+      "size": { "heightCm": 72.9, "widthCm": 56.3 },
+      "scaleNote": "73 × 56 cm — 모나리자(79 × 53 cm)와 거의 같은 크기입니다. 나란히 놓고 보면 좋은 짝입니다.",
+      "description": "레오나르도가 마지막으로 그린 것으로 보이는 작품이다. 칠흑 같은 어둠에서 상반신만 떠오르고, 하늘을 가리키는 손가락과 알 듯 모를 듯한 미소만이 빛을 받는다. 성인의 전통적인 상징은 거의 사라지고 남녀의 구분조차 흐려져, 후대에 가장 많은 해석을 낳은 레오나르도의 그림이 되었다.",
+      "image": "images/saint-jean-baptiste.webp",
+      "imageLarge": "images/large/saint-jean-baptiste.webp",
+      "frame": { "color": "#4a3317", "width": 0.1, "depth": 0.08 },
+      "placement": { "wall": "west", "face": "+", "offset": 8 },
+      "credit": {
+        "source": "Wikimedia Commons",
+        "file": "Leonardo da Vinci - Saint John the Baptist C2RMF retouched.jpg",
+        "fileUrl": "https://commons.wikimedia.org/wiki/File:Leonardo_da_Vinci_-_Saint_John_the_Baptist_C2RMF_retouched.jpg",
+        "license": "Public domain"
+      },
+      "links": [
+        { "type": "louvre", "label": "루브르 공식 소장품 페이지", "url": "https://collections.louvre.fr/en/ark:/53355/cl010062374" },
+        { "type": "wikipedia-ko", "label": "위키백과(작가) — 레오나르도 다 빈치", "url": "https://ko.wikipedia.org/wiki/레오나르도_다_빈치" },
+        { "type": "wikipedia-en", "label": "위키백과(영문) — Saint John the Baptist", "url": "https://en.wikipedia.org/wiki/Saint_John_the_Baptist_(Leonardo)" }
+      ]
+    },
+    {
+      "id": "la-belle-jardiniere",
+      "room": "grande-galerie",
+      "louvreRoom": "Salle 710 (2e travée)",
+      "titleKo": "아름다운 정원사",
+      "titleOriginal": "La Vierge à l'Enfant avec le petit saint Jean Baptiste, dit La Belle Jardinière",
+      "artistKo": "라파엘로 산치오",
+      "artistOriginal": "Raffaello Sanzio, dit Raphaël",
+      "yearLabel": "1507년",
+      "mediumKo": "포플러 패널에 유채",
+      "inventory": "INV 602 ; MR 433",
+      "size": { "heightCm": 122, "widthCm": 80 },
+      "scaleNote": "122 × 80 cm — 책상 상판 정도 크기입니다.",
+      "description": "풀밭에 앉은 성모와 두 아이를 삼각 구도로 묶은 피렌체 시기 라파엘로의 대표작이다. 레오나르도에게서 배운 부드러운 명암과 인물 사이의 시선 교환이, 라파엘로 특유의 맑고 안정된 조화로 정리되어 있다. \"아름다운 정원사\"라는 별명은 전원 풍경 속 성모의 모습에서 훗날 붙은 것이다.",
+      "image": "images/la-belle-jardiniere.webp",
+      "imageLarge": "images/large/la-belle-jardiniere.webp",
+      "frame": { "color": "#6b5321", "width": 0.1, "depth": 0.08 },
+      "placement": { "wall": "west", "face": "+", "offset": 20 },
+      "credit": {
+        "source": "Wikimedia Commons",
+        "file": "La Vierge à l'Enfant avec le petit saint Jean Baptiste - Raphaël - Musée du Louvre Peintures INV 602 ; MR 433.jpg",
+        "fileUrl": "https://commons.wikimedia.org/wiki/File:La_Vierge_%C3%A0_l'Enfant_avec_le_petit_saint_Jean_Baptiste_-_Rapha%C3%ABl_-_Mus%C3%A9e_du_Louvre_Peintures_INV_602_%3B_MR_433.jpg",
+        "license": "Public domain"
+      },
+      "links": [
+        { "type": "louvre", "label": "루브르 공식 소장품 페이지", "url": "https://collections.louvre.fr/en/ark:/53355/cl010060754" },
+        { "type": "wikipedia-ko", "label": "위키백과(작가) — 라파엘로 산치오", "url": "https://ko.wikipedia.org/wiki/라파엘로_산치오" },
+        { "type": "wikipedia-en", "label": "위키백과(영문) — La belle jardinière", "url": "https://en.wikipedia.org/wiki/La_belle_jardini%C3%A8re" }
       ]
     }
   ]

@@ -1,16 +1,106 @@
 {
-  "$comment": "전시실 치수·벽·가구 정의. 단위는 미터(m). 좌표계는 three.js 기준(X 좌우, Y 높이, Z 앞뒤).",
+  "$comment": "공간 정의. 단위는 미터(m). 좌표계는 three.js 기준(X 좌우, Y 높이, Z 앞뒤). walls[].axis 'x'는 X축을 따라 뻗은 벽(법선은 Z방향), 'z'는 Z축을 따라 뻗은 벽(법선은 X방향). portals[] 는 다른 공간으로 가는 문이다.",
+
+  "defaults": {
+    "hangingRule": { "largeThresholdCm": 150, "largeBottom": 0.8, "defaultCenter": 1.6 },
+    "viewingSpot": { "radius": 0.62, "color": "#e4d5a8", "opacity": 0.3, "factor": 1.6, "min": 2.0, "max": 8.0 },
+    "lighting": {
+      "hemisphere": { "sky": "#f6f1e6", "ground": "#6b5a46", "intensity": 1.8 },
+      "fill": { "color": "#fff6e8", "intensity": 0.75, "position": [6, 14, 8] },
+      "fillBack": { "color": "#dce6f5", "intensity": 0.45, "position": [-7, 13, -9] },
+      "spot": { "color": "#fff4e2", "intensity": 22, "angle": 0.6, "penumbra": 0.8, "decay": 2 }
+    }
+  },
+
   "rooms": [
     {
+      "id": "lobby",
+      "kind": "lobby",
+      "nameKo": "나폴레옹 홀",
+      "nameFr": "Hall Napoléon",
+      "subtitle": "유리 피라미드 아래 입장 공간",
+      "menuLabel": "로비 — 나폴레옹 홀",
+      "intro": "유리 피라미드 아래 지하 1층, 루브르의 모든 관람이 시작되는 중앙 홀입니다. 세 개의 문이 각각 드농관의 전시실로 이어집니다.",
+
+      "dimensions": { "width": 32, "depth": 32, "height": 11 },
+      "spawn": { "position": [0, 0, 11], "yaw": 0 },
+
+      "materials": {
+        "wall": "#c8bda8",
+        "wainscot": "#9c8e77",
+        "floor": "#b9ad96",
+        "ceiling": "#dfe7f2",
+        "trim": "#a98f5c"
+      },
+      "lighting": {
+        "hemisphere": { "sky": "#ffffff", "ground": "#b9ad96", "intensity": 2.6 },
+        "fill": { "color": "#fff8ec", "intensity": 1.0, "position": [8, 16, 10] },
+        "fillBack": { "color": "#e8f0ff", "intensity": 0.6, "position": [-8, 15, -10] },
+        "spot": { "color": "#fff4e2", "intensity": 18, "angle": 0.6, "penumbra": 0.8, "decay": 2 }
+      },
+
+      "features": [
+        { "type": "pyramid", "position": [0, 0], "base": 11, "height": 7.2, "color": "#cfe3f5" },
+        { "type": "medallion", "position": [0, 0], "radius": 6.4, "color": "#8d7a58" }
+      ],
+
+      "walls": [
+        { "id": "south", "axis": "x", "center": [0, 16.25], "length": 32.5, "thickness": 0.5, "height": 11, "faces": ["-"] },
+        { "id": "north", "axis": "x", "center": [0, -16.25], "length": 32.5, "thickness": 0.5, "height": 11, "faces": ["+"] },
+        { "id": "west", "axis": "z", "center": [-16.25, 0], "length": 32.5, "thickness": 0.5, "height": 11, "faces": ["+"] },
+        { "id": "east", "axis": "z", "center": [16.25, 0], "length": 32.5, "thickness": 0.5, "height": 11, "faces": ["-"] }
+      ],
+
+      "furniture": [
+        { "id": "bench-nw", "type": "bench", "position": [-9.5, -6], "size": [3.4, 0.45, 1.1], "color": "#6b5f4a" },
+        { "id": "bench-ne", "type": "bench", "position": [9.5, -6], "size": [3.4, 0.45, 1.1], "color": "#6b5f4a" }
+      ],
+
+      "portals": [
+        {
+          "id": "to-salle-des-etats",
+          "target": "salle-des-etats",
+          "wall": "north",
+          "face": "+",
+          "offset": 0,
+          "titleKo": "국가의 방",
+          "titleFr": "Salle des États · 711",
+          "note": "16세기 베네치아 회화 · 모나리자"
+        },
+        {
+          "id": "to-peinture-francaise",
+          "target": "peinture-francaise",
+          "wall": "east",
+          "face": "-",
+          "offset": 0,
+          "titleKo": "프랑스 대형 회화실",
+          "titleFr": "Mollien · 700 / Daru · 702",
+          "note": "신고전주의와 낭만주의의 대형 역사화"
+        },
+        {
+          "id": "to-grande-galerie",
+          "target": "grande-galerie",
+          "wall": "west",
+          "face": "+",
+          "offset": 0,
+          "titleKo": "그랑드 갤러리",
+          "titleFr": "Grande Galerie · 710",
+          "note": "이탈리아 르네상스 회화의 긴 회랑"
+        }
+      ]
+    },
+
+    {
       "id": "salle-des-etats",
+      "kind": "gallery",
       "nameKo": "국가의 방",
       "nameFr": "Salle des États",
       "subtitle": "루브르 박물관 드농관 1층 711호 · 모나리자 전시실",
+      "menuLabel": "전시실 1 — 국가의 방 (711)",
       "intro": "루브르에서 가장 넓은 전시실(약 700㎡)로, 16세기 베네치아 회화를 모아 걸었다. 2019년 재단장 때 벽을 짙은 프러시안 블루로 칠했고, 모나리자는 방 한가운데 독립 칸막이벽에, 베로네세의 「가나의 혼인잔치」는 그 정면 벽에 마주 걸려 있다.",
 
       "dimensions": { "width": 30, "depth": 23, "height": 11 },
-
-      "spawn": { "position": [0, 1.65, 6.5], "yaw": 0 },
+      "spawn": { "position": [0, 0, 6.5], "yaw": 0 },
 
       "materials": {
         "wall": "#1b3358",
@@ -20,20 +110,6 @@
         "trim": "#b79a63"
       },
 
-      "lighting": {
-        "hemisphere": { "sky": "#f6f1e6", "ground": "#6b5a46", "intensity": 1.8 },
-        "fill": { "color": "#fff6e8", "intensity": 0.75, "position": [6, 14, 8] },
-        "fillBack": { "color": "#dce6f5", "intensity": 0.45, "position": [-7, 13, -9] },
-        "spot": { "color": "#fff4e2", "intensity": 22, "angle": 0.6, "penumbra": 0.8, "decay": 2 }
-      },
-
-      "$comment_hangingRule": "작품 걸이 높이 규칙(m). 세로가 largeThresholdCm 를 넘는 대형 작품은 하단을 바닥에서 largeBottom 높이에 맞추고, 그 외는 중심을 defaultCenter 높이에 맞춘다. paintings.json 의 placement.centerHeight 가 있으면 그 값이 우선한다.",
-      "hangingRule": { "largeThresholdCm": 150, "largeBottom": 0.8, "defaultCenter": 1.6 },
-
-      "$comment_viewingSpot": "작품 앞 바닥에 그리는 감상 위치 표시. distance 가 없으면 작품 높이 × factor 를 min~max 로 제한해 쓴다.",
-      "viewingSpot": { "radius": 0.62, "color": "#e4d5a8", "opacity": 0.3, "factor": 1.6, "min": 2.0, "max": 8.0 },
-
-      "$comment_walls": "axis 'x'는 X축을 따라 뻗은 벽(법선은 Z방향), axis 'z'는 Z축을 따라 뻗은 벽(법선은 X방향). center는 [x, z] 중심. faces는 그림을 걸 수 있는 면.",
       "walls": [
         { "id": "south", "axis": "x", "center": [0, 11.75], "length": 30.5, "thickness": 0.5, "height": 11, "faces": ["-"] },
         { "id": "north", "axis": "x", "center": [0, -11.75], "length": 30.5, "thickness": 0.5, "height": 11, "faces": ["+"] },
@@ -51,11 +127,92 @@
         }
       ],
 
-      "$comment_furniture": "충돌 판정이 있는 집기. size는 [가로(X), 높이(Y), 깊이(Z)], position은 바닥에 놓인 상태의 중심 [x, z].",
       "furniture": [
         { "id": "barrier", "type": "barrier", "position": [0, 0.9], "size": [9.6, 0.98, 0.18], "color": "#9c7f44" },
         { "id": "bench-west", "type": "bench", "position": [-5.8, 3.6], "size": [3.2, 0.45, 1.1], "color": "#4a3b2c" },
         { "id": "bench-east", "type": "bench", "position": [5.8, 3.6], "size": [3.2, 0.45, 1.1], "color": "#4a3b2c" }
+      ],
+
+      "portals": [
+        { "id": "exit", "target": "lobby", "wall": "south", "face": "-", "offset": 11, "titleKo": "로비로 돌아가기", "titleFr": "Hall Napoléon", "note": "나폴레옹 홀" }
+      ]
+    },
+
+    {
+      "id": "peinture-francaise",
+      "kind": "gallery",
+      "nameKo": "프랑스 대형 회화실",
+      "nameFr": "Salle Mollien · Salle Daru",
+      "subtitle": "루브르 박물관 드농관 1층 700호(Mollien)·702호(Daru)",
+      "menuLabel": "전시실 2 — 프랑스 대형 회화실 (700·702)",
+      "intro": "드농관 1층에 나란히 붙은 두 방, 낭만주의의 700호 Mollien 과 신고전주의의 702호 Daru 에는 프랑스 회화사에서 가장 거대한 캔버스들이 걸려 있다. 19세기 살롱의 관행대로 높이 5~6미터짜리 역사화가 벽을 가득 채운다. 이 가상 전시실은 두 방을 하나로 합쳐 재현했다.",
+
+      "dimensions": { "width": 34, "depth": 18, "height": 13 },
+      "spawn": { "position": [0, 0, 0], "yaw": 3.14159 },
+
+      "materials": {
+        "wall": "#7a2f33",
+        "wainscot": "#431a1d",
+        "floor": "#7a6650",
+        "ceiling": "#f2ece0",
+        "trim": "#c0a063"
+      },
+
+      "walls": [
+        { "id": "south", "axis": "x", "center": [0, 9.25], "length": 34.5, "thickness": 0.5, "height": 13, "faces": ["-"] },
+        { "id": "north", "axis": "x", "center": [0, -9.25], "length": 34.5, "thickness": 0.5, "height": 13, "faces": ["+"] },
+        { "id": "west", "axis": "z", "center": [-17.25, 0], "length": 18.5, "thickness": 0.5, "height": 13, "faces": ["+"] },
+        { "id": "east", "axis": "z", "center": [17.25, 0], "length": 18.5, "thickness": 0.5, "height": 13, "faces": ["-"] }
+      ],
+
+      "furniture": [
+        { "id": "bench-mid-w", "type": "bench", "position": [-8, 0], "size": [3.6, 0.45, 1.2], "color": "#4a3b2c" },
+        { "id": "bench-mid-e", "type": "bench", "position": [8, 0], "size": [3.6, 0.45, 1.2], "color": "#4a3b2c" }
+      ],
+
+      "portals": [
+        { "id": "exit", "target": "lobby", "wall": "west", "face": "+", "offset": 6.5, "titleKo": "로비로 돌아가기", "titleFr": "Hall Napoléon", "note": "나폴레옹 홀" }
+      ]
+    },
+
+    {
+      "id": "grande-galerie",
+      "kind": "gallery",
+      "nameKo": "그랑드 갤러리",
+      "nameFr": "Grande Galerie",
+      "subtitle": "루브르 박물관 드농관 1층 710호 · 약 60m 구간 재현",
+      "menuLabel": "전시실 3 — 그랑드 갤러리 (710)",
+      "intro": "센강을 따라 뻗은 길이 약 480m 의 회랑으로, 16세기 말 왕궁을 잇는 통로로 지어졌다. 지금은 이탈리아 회화를 거는 전시실이며, 반원통형 천장과 천창이 줄지어 이어진다. 이 가상 전시실은 전체가 아니라 1·2 travée 를 포함한 약 60m 구간만 재현한 것이다.",
+
+      "dimensions": { "width": 9.6, "depth": 60, "height": 11.5 },
+      "spawn": { "position": [0, 0, -26], "yaw": 3.14159 },
+
+      "materials": {
+        "wall": "#8a6a4a",
+        "wainscot": "#4a3826",
+        "floor": "#7d6646",
+        "ceiling": "#efe6d4",
+        "trim": "#c2a469"
+      },
+
+      "features": [
+        { "type": "vault", "radius": 4.8, "length": 60, "height": 7.0, "color": "#efe6d4" }
+      ],
+
+      "walls": [
+        { "id": "west", "axis": "z", "center": [-5.05, 0], "length": 60.5, "thickness": 0.5, "height": 7.0, "faces": ["+"] },
+        { "id": "east", "axis": "z", "center": [5.05, 0], "length": 60.5, "thickness": 0.5, "height": 7.0, "faces": ["-"] },
+        { "id": "north", "axis": "x", "center": [0, -30.25], "length": 10.6, "thickness": 0.5, "height": 11.5, "faces": ["+"] },
+        { "id": "south", "axis": "x", "center": [0, 30.25], "length": 10.6, "thickness": 0.5, "height": 11.5, "faces": ["-"] }
+      ],
+
+      "furniture": [
+        { "id": "bench-1", "type": "bench", "position": [0, -14], "size": [1.1, 0.45, 3.2], "color": "#4a3b2c" },
+        { "id": "bench-2", "type": "bench", "position": [0, 12], "size": [1.1, 0.45, 3.2], "color": "#4a3b2c" }
+      ],
+
+      "portals": [
+        { "id": "exit", "target": "lobby", "wall": "north", "face": "+", "offset": 0, "titleKo": "로비로 돌아가기", "titleFr": "Hall Napoléon", "note": "나폴레옹 홀" }
       ]
     }
   ]

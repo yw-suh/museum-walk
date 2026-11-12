@@ -1,6 +1,8 @@
 import * as THREE from 'three';
+import { anchorOnWall } from './buildRoom.js';
 
 const CANVAS_GAP = 0.02; // 벽면과 캔버스 사이 간격(z-fighting 방지)
+const ASPECT_WARN = 0.08; // 이미지 비율이 공식 치수와 8% 넘게 다르면 알린다
 
 /**
  * paintings.json 의 작품들을 실제 치수(cm) 비율 그대로 벽에 건다.
@@ -54,8 +56,11 @@ export async function buildPaintings(paintings, wallIndex, room, manager) {
     );
     canvas.position.z = CANVAS_GAP;
     canvas.userData.painting = painting;
+    canvas.userData.normal = normal.clone();
     piece.add(canvas);
     targets.push(canvas);
+
+    warnOnAspectMismatch(painting, textures[i]);
 
     piece.add(buildFrame(painting.frame, w, h));
     group.add(piece);
@@ -85,27 +90,22 @@ export async function buildPaintings(paintings, wallIndex, room, manager) {
 }
 
 /**
- * 벽 정의 + placement 로부터 작품 중심 좌표와 회전을 구한다.
- * face '+' 는 벽의 법선이 +Z(axis 'x') 또는 +X(axis 'z') 를 향하는 면,
- * offset 은 벽이 뻗은 축(axis)을 따른 거리(m)다.
+ * 캔버스는 공식 치수대로 그린다. 이미지 비율이 공식 치수와 많이 다르면
+ * 가로세로가 늘어나 보이므로 개발 중에만 알려 준다 (데이터 점검용).
  */
-function anchorOnWall(wall, placement) {
-  const sign = placement.face === '-' ? -1 : 1;
-  const [cx, cz] = wall.center;
-  const halfThickness = wall.thickness / 2;
-
-  if (wall.axis === 'x') {
-    return {
-      position: new THREE.Vector3(cx + placement.offset, placement.centerHeight, cz + sign * halfThickness),
-      rotationY: sign > 0 ? 0 : Math.PI,
-      normal: new THREE.Vector3(0, 0, sign),
-    };
+function warnOnAspectMismatch(painting, texture) {
+  if (!import.meta.env.DEV) return;
+  const image = texture.image;
+  if (!image?.width) return;
+  const official = painting.size.heightCm / painting.size.widthCm;
+  const actual = image.height / image.width;
+  const diff = Math.abs(actual - official) / official;
+  if (diff > ASPECT_WARN) {
+    console.warn(
+      `[paintings] ${painting.id}: 이미지 비율(${actual.toFixed(3)})이 ` +
+        `공식 치수 비율(${official.toFixed(3)})과 ${(diff * 100).toFixed(0)}% 다릅니다.`,
+    );
   }
-  return {
-    position: new THREE.Vector3(cx + sign * halfThickness, placement.centerHeight, cz + placement.offset),
-    rotationY: sign > 0 ? Math.PI / 2 : -Math.PI / 2,
-    normal: new THREE.Vector3(sign, 0, 0),
-  };
 }
 
 /** 캔버스를 두르는 네 개의 막대로 액자를 만든다. */

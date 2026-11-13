@@ -24,15 +24,47 @@ const TEXTURE = { maxSide: 2048, quality: 80 };
 const VIEWER = { maxSide: 4096, quality: 82 };
 const TEXTURE_BUDGET_MB = 4; // 전시실 한 곳 기준
 
+/**
+ * 이미지 비율이 루브르 공식 치수와 많이 다른 작품은 **가운데를 잘라** 공식 비율에 맞춘다.
+ * 늘이면 그림이 찌그러지므로, 가장자리를 조금 잃더라도 비율을 지키는 쪽을 택한다.
+ * (id → paintings.json 의 size 로 목표 비율을 계산)
+ */
+const CROP_TO_OFFICIAL = new Set([
+  'sainte-anne', // 공식 168 × 113 cm, Commons 스캔은 약 10% 더 넓다
+]);
+
 const mb = (bytes) => bytes / 1024 / 1024;
 const kb = (bytes) => Math.round(bytes / 1024);
 
-/** 긴 변이 maxSide 를 넘을 때만 축소 (업스케일하지 않음) */
-async function convert(srcPath, outPath, { maxSide, quality }) {
-  const image = sharp(srcPath, { limitInputPixels: false });
-  const { width, height } = await image.metadata();
-  const needsResize = Math.max(width, height) > maxSide;
+/**
+ * 긴 변이 maxSide 를 넘을 때만 축소(업스케일하지 않음).
+ * targetAspect(가로/세로)가 주어지면 먼저 가운데를 잘라 그 비율로 맞춘다.
+ */
+async function convert(srcPath, outPath, { maxSide, quality }, targetAspect = null) {
+  let image = sharp(srcPath, { limitInputPixels: false });
+  const meta = await image.metadata();
+  let width = meta.width;
+  let height = meta.height;
+  let cropped = null;
 
+  if (targetAspect) {
+    const current = width / height;
+    if (Math.abs(current - targetAspect) / targetAspect > 0.01) {
+      const cropW = current > targetAspect ? Math.round(height * targetAspect) : width;
+      const cropH = current > targetAspect ? height : Math.round(width / targetAspect);
+      image = image.extract({
+        left: Math.round((width - cropW) / 2),
+        top: Math.round((height - cropH) / 2),
+        width: cropW,
+        height: cropH,
+      });
+      cropped = `${width}x${height} → ${cropW}x${cropH}`;
+      width = cropW;
+      height = cropH;
+    }
+  }
+
+  const needsResize = Math.max(width, height) > maxSide;
   const pipeline = needsResize
     ? image.resize({
         width: width >= height ? maxSide : undefined,
@@ -43,7 +75,7 @@ async function convert(srcPath, outPath, { maxSide, quality }) {
     : image;
 
   const info = await pipeline.webp({ quality, effort: 5 }).toFile(outPath);
-  return { from: `${width}x${height}`, to: `${info.width}x${info.height}`, bytes: info.size };
+  return { from: `${meta.width}x${meta.height}`, to: `${info.width}x${info.height}`, bytes: info.size, cropped };
 }
 
 async function main() {
@@ -65,6 +97,7 @@ async function main() {
   // 작품 id → 전시실 id (용량을 전시실 단위로 집계하기 위해)
   const paintings = JSON.parse(await readFile(resolve(ROOT, 'src/data/paintings.json'), 'utf8')).paintings;
   const roomOf = new Map(paintings.map((p) => [p.id, p.room]));
+  const sizeOf = new Map(paintings.map((p) => [p.id, p.size]));
 
   let texTotal = 0;
   let bigTotal = 0;
@@ -76,8 +109,12 @@ async function main() {
     const src = resolve(SRC_DIR, file);
     srcTotal += (await stat(src)).size;
 
-    const tex = await convert(src, resolve(TEX_DIR, `${id}.webp`), TEXTURE);
-    const big = await convert(src, resolve(BIG_DIR, `${id}.webp`), VIEWER);
+    const size = sizeOf.get(id);
+    const targetAspect = CROP_TO_OFFICIAL.has(id) && size ? size.widthCm / size.heightCm : null;
+
+    const tex = await convert(src, resolve(TEX_DIR, `${id}.webp`), TEXTURE, targetAspect);
+    const big = await convert(src, resolve(BIG_DIR, `${id}.webp`), VIEWER, targetAspect);
+    if (tex.cropped) console.log(`  · ${id}: 공식 비율에 맞춰 가운데를 잘라냄 ${tex.cropped}`);
     texTotal += tex.bytes;
     bigTotal += big.bytes;
 

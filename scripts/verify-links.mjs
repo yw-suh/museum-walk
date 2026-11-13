@@ -1,6 +1,6 @@
 /**
- * paintings.json 의 모든 외부 링크(루브르 공식 소장품 페이지, 한국어 위키백과)와
- * 이미지 출처 URL이 실제로 열리는지 확인합니다.
+ * paintings.json · sculptures.json 의 모든 외부 링크(루브르 공식 소장품 페이지,
+ * 위키백과, 이미지·3D 모델 출처, 라이선스)가 실제로 열리는지 확인합니다.
  *
  *   npm run verify-links
  *
@@ -38,12 +38,18 @@ async function check(url) {
   return { ok: false, status: 429, final: target };
 }
 
-const data = JSON.parse(await readFile(resolve(ROOT, 'src/data/paintings.json'), 'utf8'));
+const paintings = JSON.parse(await readFile(resolve(ROOT, 'src/data/paintings.json'), 'utf8')).paintings;
+const sculptures = JSON.parse(await readFile(resolve(ROOT, 'src/data/sculptures.json'), 'utf8')).sculptures;
 
 const jobs = [];
-for (const p of data.paintings) {
+for (const p of paintings) {
   for (const link of p.links) jobs.push({ who: `${p.id} · ${link.type}`, url: link.url });
   jobs.push({ who: `${p.id} · image`, url: p.credit.fileUrl });
+}
+for (const s of sculptures) {
+  for (const link of s.links) jobs.push({ who: `${s.id} · ${link.type}`, url: link.url });
+  jobs.push({ who: `${s.id} · model`, url: s.modelCredit.url });
+  if (s.modelCredit.licenseUrl) jobs.push({ who: `${s.id} · license`, url: s.modelCredit.licenseUrl });
 }
 
 let failed = 0;

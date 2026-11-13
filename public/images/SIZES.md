@@ -9,7 +9,7 @@
 | 전시실 | 작품 수 | 텍스처 합계 | 뷰어 합계(지연 로딩) |
 | --- | ---: | ---: | ---: |
 | salle-des-etats | 6 | **3.57 MB** | 16.10 MB |
-| grande-galerie | 6 | **1.59 MB** | 9.62 MB |
+| grande-galerie | 6 | **1.53 MB** | 9.18 MB |
 | peinture-francaise | 6 | **2.49 MB** | 10.56 MB |
 
 ## 작품별
@@ -31,9 +31,9 @@
 | sacre-de-napoleon | peinture-francaise | 3840x2415 | 2048x1288 · 546 KB | 3840x2415 · 1909 KB |
 | saint-jean-baptiste | grande-galerie | 3840x4971 | 1582x2048 · 245 KB | 3164x4096 · 1996 KB |
 | saint-sebastien | grande-galerie | 3454x6425 | 1101x2048 · 195 KB | 2202x4096 · 867 KB |
-| sainte-anne | grande-galerie | 3840x5149 | 1527x2048 · 444 KB | 3055x4096 · 3001 KB |
+| sainte-anne | grande-galerie | 3840x5149 | 1377x2048 · 381 KB | 2755x4096 · 2554 KB |
 | suzanne-au-bain | salle-des-etats | 3840x2635 | 2048x1405 · 882 KB | 3840x2635 · 3385 KB |
 | vierge-aux-rochers | grande-galerie | 3460x5487 | 1291x2048 · 331 KB | 2583x4096 · 1783 KB |
 
 - 원본 JPEG 합계: 86.01 MB (저장소에 포함하지 않음)
-- 전체 텍스처: 7.66 MB · 전체 뷰어: 36.28 MB
+- 전체 텍스처: 7.59 MB · 전체 뷰어: 35.84 MB

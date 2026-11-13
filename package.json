@@ -11,12 +11,20 @@
     "fetch-images": "node scripts/fetch-images.mjs",
     "optimize-images": "node scripts/optimize-images.mjs",
     "images": "npm run fetch-images && npm run optimize-images",
-    "verify-links": "node scripts/verify-links.mjs"
+    "verify-links": "node scripts/verify-links.mjs",
+    "prepare-models": "node scripts/prepare-models.mjs",
+    "audit-descriptions": "node scripts/audit-descriptions.mjs"
   },
   "dependencies": {
     "three": "^0.180.0"
   },
   "devDependencies": {
+    "@gltf-transform/cli": "^4.5.1",
+    "@gltf-transform/core": "^4.5.1",
+    "@gltf-transform/extensions": "^4.5.1",
+    "@gltf-transform/functions": "^4.5.1",
+    "draco3dgltf": "^1.5.9",
+    "meshoptimizer": "^1.3.0",
     "sharp": "^0.34.0",
     "vite": "^7.1.0"
   }

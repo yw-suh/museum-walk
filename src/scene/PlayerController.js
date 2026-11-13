@@ -38,6 +38,7 @@ export class PlayerController {
     this.viewMode = 'third'; // 'first' | 'third'
     this.colliders = [];
     this.expanded = [];
+    this.ground = () => 0; // (x, z) → 바닥 높이. 계단이 있는 공간에서 교체된다.
     this.locked = false;
     this.frozen = false; // 패널·뷰어가 열려 있을 때 이동을 멈춘다
 
@@ -86,10 +87,11 @@ export class PlayerController {
     for (const fn of this._listeners.unlock) fn();
   }
 
-  /** 공간이 바뀔 때 충돌 박스와 시작 위치를 교체 */
-  setRoom(room, colliders, spawn = room.spawn) {
+  /** 공간이 바뀔 때 충돌 박스·바닥 높이·시작 위치를 교체 */
+  setRoom(room, colliders, ground, spawn = room.spawn) {
     this.state.roomId = room.id;
     this.colliders = colliders;
+    this.ground = ground ?? (() => 0);
     this.expanded = colliders.map((box) =>
       box.clone().expandByVector(new THREE.Vector3(RADIUS, 0, RADIUS)),
     );
@@ -97,7 +99,7 @@ export class PlayerController {
   }
 
   teleport(position, yaw = this.yaw) {
-    this.position.set(position[0], 0, position[2]);
+    this.position.set(position[0], this.ground(position[0], position[2]), position[2]);
     this.yaw = yaw;
     this.pitch = 0;
     this.facing = yaw;
@@ -114,7 +116,9 @@ export class PlayerController {
   /** 작품을 정면에서 보도록 카메라와 몸을 옮긴다 */
   faceArtwork(worldPosition, normal, distance) {
     const target = new THREE.Vector3(worldPosition.x, 0, worldPosition.z).addScaledVector(normal, distance);
-    if (!this._blocked(target.x, target.z)) this.position.set(target.x, 0, target.z);
+    if (!this._blocked(target.x, target.z)) {
+      this.position.set(target.x, this.ground(target.x, target.z), target.z);
+    }
     // 카메라 기본 시선은 -Z 이므로, 작품 쪽(-normal)을 보려면 yaw = atan2(normal.x, normal.z)
     this.yaw = Math.atan2(normal.x, normal.z);
     this.facing = this.yaw;
@@ -161,6 +165,10 @@ export class PlayerController {
     if (!this._blocked(this.position.x, nextZ)) this.position.z = nextZ;
     else this.velocity.z = 0;
 
+    // 계단·단 위에서는 발밑 높이를 따라간다 (갑자기 튀지 않도록 부드럽게)
+    const targetY = this.ground(this.position.x, this.position.z);
+    this.position.y += (targetY - this.position.y) * Math.min(1, dt * 18);
+
     const moving = this.velocity.lengthSq() > 0.09;
     if (moving) {
       // 아바타는 실제 이동 방향을 보고, 그 방향으로 부드럽게 돈다
@@ -177,7 +185,7 @@ export class PlayerController {
   }
 
   _writeState(moving) {
-    this.state.position = [this.position.x, 0, this.position.z];
+    this.state.position = [this.position.x, this.position.y, this.position.z];
     this.state.rotation = this.facing;
     this.state.moving = moving;
   }
@@ -190,12 +198,12 @@ export class PlayerController {
 
   _placeCamera() {
     if (this.viewMode === 'first') {
-      this.camera.position.set(this.position.x, EYE_HEIGHT, this.position.z);
+      this.camera.position.set(this.position.x, this.position.y + EYE_HEIGHT, this.position.z);
       this.camera.rotation.set(this.pitch, this.yaw, 0, 'YXZ');
       return;
     }
 
-    const pivot = new THREE.Vector3(this.position.x, THIRD.pivot, this.position.z);
+    const pivot = new THREE.Vector3(this.position.x, this.position.y + THIRD.pivot, this.position.z);
     const desired = pivot.clone().addScaledVector(this.viewDirection(), -THIRD.back);
     desired.y += THIRD.up;
 
@@ -219,8 +227,10 @@ export class PlayerController {
 
   /** (x, z) 지점이 어떤 충돌 박스 안에 들어가는지 */
   _blocked(x, z) {
+    const foot = this.ground(x, z);
     for (const box of this.expanded) {
-      if (x > box.min.x && x < box.max.x && z > box.min.z && z < box.max.z && box.max.y > 0.25) {
+      // 발밑보다 25cm 넘게 솟아 있는 것만 막는다 (계단 위에 올라선 뒤에는 통과)
+      if (x > box.min.x && x < box.max.x && z > box.min.z && z < box.max.z && box.max.y > foot + 0.25) {
         return true;
       }
     }

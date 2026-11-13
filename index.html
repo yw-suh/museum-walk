@@ -4,10 +4,32 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <title>Museum Walk — 루브르에서 영감을 받은 가상 전시</title>
     <meta
       name="description"
-      content="루브르 박물관에서 영감을 받은 교육용 가상 전시실 — 로비와 세 전시실을 3인칭 아바타로 걸어 다니며 감상합니다."
+      content="루브르 박물관에서 영감을 받은 교육용 가상 전시입니다. 유리 피라미드 앞에서 출발해 전시실을 걸어 다니며 회화 18점과 조각 2점을 실제 크기로 감상합니다. 비공식·비상업 프로젝트."
     />
+
+    <!-- 공유 미리보기 -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Museum Walk — 루브르에서 영감을 받은 가상 전시" />
+    <meta
+      property="og:description"
+      content="유리 피라미드 앞에서 출발해 전시실을 걸어 다니며 회화 18점과 조각 2점을 실제 크기로 감상하는 교육용 가상 전시. 루브르 박물관과는 무관한 비공식 프로젝트입니다."
+    />
+    <meta property="og:image" content="/share-preview.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Museum Walk — 루브르에서 영감을 받은 가상 전시" />
+    <meta
+      name="twitter:description"
+      content="걸어 다니며 보는 교육용 가상 전시. 회화 18점 + 조각 2점을 실제 크기로."
+    />
+    <meta name="twitter:image" content="/share-preview.png" />
+    <meta name="theme-color" content="#0d1b2e" />
 
     <!-- 본문 폰트: Pretendard (동적 서브셋). 받지 못하면 Noto Sans KR → 시스템 한글 폰트로 떨어집니다. -->
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
@@ -15,8 +37,6 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
     />
-
-    <title>Musée Virtuel — 루브르 교육용 가상 전시실</title>
   </head>
   <body>
     <canvas id="scene"></canvas>
@@ -28,7 +48,8 @@
         <span id="loc-sub"></span>
       </div>
       <span id="loc-count"></span>
-      <button id="loc-menu" type="button">전시실 <kbd>M</kbd></button>
+      <button id="loc-about" type="button">소개·출처</button>
+      <button id="loc-menu" type="button">공간 <kbd>M</kbd></button>
     </header>
 
     <!-- 조준점 + 바라보는 대상 -->
@@ -37,6 +58,10 @@
       <div id="hover-label"></div>
     </div>
 
+    <!-- 화면 하단 고정 안내 + Beta -->
+    <p id="footer-note" class="hidden"></p>
+    <span id="beta-badge" class="hidden">Beta</span>
+
     <!-- 모바일 조작 레이어 -->
     <div id="touch-layer" class="hidden">
       <div id="joystick" class="hidden"><div id="joystick-knob"></div></div>
@@ -44,7 +69,7 @@
       <button id="touch-enter" type="button" class="hidden">입장하기</button>
     </div>
 
-    <!-- 우측 작품 정보 패널 (모바일에서는 하단 시트) -->
+    <!-- 작품 정보 패널 (모바일에서는 하단 시트) -->
     <aside id="info-panel" class="hidden" aria-live="polite">
       <button id="info-close" type="button" aria-label="정보 패널 닫기">×</button>
       <p id="info-eyebrow"></p>
@@ -58,7 +83,7 @@
       <p id="info-credit"></p>
     </aside>
 
-    <!-- 전체 화면 작품 뷰어 -->
+    <!-- 회화: 전체 화면 이미지 뷰어 -->
     <div id="viewer" class="hidden" role="dialog" aria-modal="true" aria-label="작품 크게 보기">
       <button id="viewer-close" type="button" aria-label="뷰어 닫기">×</button>
       <img id="viewer-img" alt="" draggable="false" />
@@ -70,18 +95,39 @@
       </div>
     </div>
 
-    <!-- 전시실 목록 메뉴 -->
-    <div id="room-menu" class="hidden" role="dialog" aria-modal="true" aria-label="전시실 목록">
+    <!-- 조각: 돌려 보기 -->
+    <div id="model-viewer" class="hidden" role="dialog" aria-modal="true" aria-label="조각 돌려 보기">
+      <button id="model-close" type="button" aria-label="돌려 보기 닫기">×</button>
+      <div id="model-canvas-holder"></div>
+      <p id="model-status" class="hidden"></p>
+      <div id="model-bar">
+        <p id="model-caption"></p>
+        <p id="model-hint"></p>
+      </div>
+    </div>
+
+    <!-- 공간 목록 메뉴 -->
+    <div id="room-menu" class="hidden" role="dialog" aria-modal="true" aria-label="공간 목록">
       <div class="menu-card">
         <button id="room-menu-close" type="button" aria-label="메뉴 닫기">×</button>
-        <p class="menu-eyebrow">Musée du Louvre</p>
-        <h2>전시실 이동</h2>
+        <p class="menu-eyebrow">Museum Walk</p>
+        <h2>공간 이동</h2>
         <div id="room-menu-list"></div>
         <p class="menu-foot">주소창의 <code>?room=</code> 으로도 바로 들어올 수 있습니다.</p>
       </div>
     </div>
 
-    <!-- 방을 옮길 때의 로딩 막 -->
+    <!-- 소개·출처 -->
+    <div id="about" class="hidden" role="dialog" aria-modal="true" aria-label="소개와 출처">
+      <div class="about-card">
+        <button id="about-close" type="button" aria-label="소개 닫기">×</button>
+        <p class="menu-eyebrow">소개·출처</p>
+        <h2 id="about-title">Museum Walk</h2>
+        <div id="about-body"></div>
+      </div>
+    </div>
+
+    <!-- 공간을 옮길 때의 막 -->
     <div id="travel" class="hidden" aria-live="polite">
       <div class="travel-inner">
         <p id="travel-name"></p>
@@ -90,19 +136,26 @@
       </div>
     </div>
 
+    <!-- 피라미드 아래로 내려가는 연출 -->
+    <div id="transition" class="hidden" aria-hidden="true">
+      <div class="transition-steps"></div>
+      <p id="transition-text"></p>
+    </div>
+
     <!-- ?debug -->
     <pre id="debug" class="hidden"></pre>
 
     <!-- 시작 화면 -->
     <div id="start-overlay">
       <div class="start-card">
-        <p class="start-eyebrow">Musée du Louvre · Aile Denon</p>
-        <h1>Musée Virtuel</h1>
-        <p class="start-sub">루브르 박물관에서 영감을 받은 교육용 가상 전시실</p>
+        <p class="start-eyebrow">Musée du Louvre 에서 영감을 받은</p>
+        <h1 id="start-title">Museum Walk</h1>
+        <p class="start-sub" id="start-tagline">루브르에서 영감을 받은 가상 전시</p>
         <p class="start-intro">
-          유리 피라미드 아래 나폴레옹 홀에서 출발해 세 전시실을 걸어 다니며 18점의 실제 소장품을 감상합니다.
-          모든 그림은 루브르 공식 기록의 실제 치수 그대로 걸려 있습니다.
+          유리 피라미드 앞뜰에서 출발해 로비와 다섯 공간을 걸어 다니며 회화 18점과 조각 2점을 감상합니다.
+          모든 작품은 루브르 공식 기록의 실제 치수 그대로 놓여 있습니다.
         </p>
+        <p class="start-disclaimer" id="start-disclaimer"></p>
 
         <section class="profile">
           <h2>관람객 정보</h2>
@@ -121,7 +174,7 @@
             <li><kbd>마우스</kbd><span>시점 회전</span></li>
             <li><kbd>클릭</kbd><span>작품 정보 보기 · 문으로 입장</span></li>
             <li><kbd>V</kbd><span>1인칭 / 3인칭 전환</span></li>
-            <li><kbd>M</kbd><span>전시실 목록</span></li>
+            <li><kbd>M</kbd><span>공간 목록</span></li>
             <li><kbd>Esc</kbd><span>열린 창 닫기 · 시작 화면으로</span></li>
           </ul>
           <ul id="controls-touch">
@@ -129,10 +182,10 @@
             <li><kbd>오른쪽</kbd><span>드래그로 시점 회전</span></li>
             <li><kbd>탭</kbd><span>작품 정보 보기 · 문으로 입장</span></li>
             <li><kbd>시점</kbd><span>1인칭 / 3인칭 전환</span></li>
-            <li><kbd>전시실</kbd><span>상단 버튼으로 전시실 이동</span></li>
+            <li><kbd>공간</kbd><span>상단 버튼으로 공간 이동</span></li>
           </ul>
           <p class="controls-tip">
-            바닥의 옅은 원은 작품이 가장 알맞게 보이는 위치입니다. 그 위에 서서 감상해 보세요.
+            바닥의 옅은 원은 작품이 가장 알맞게 보이는 위치입니다. 조각은 그 원을 따라 한 바퀴 돌아 보세요.
           </p>
         </section>
 
@@ -144,11 +197,14 @@
         </div>
 
         <button id="enter-button" type="button" disabled>불러오는 중… 0%</button>
+
         <p class="start-foot">
-          작품 이미지는 Wikimedia Commons 퍼블릭 도메인 자료입니다. 작품 정보·치수·소재는
+          작품 이미지는 Wikimedia Commons 퍼블릭 도메인 자료이고, 조각 3D 모델은 공개 라이선스 스캔입니다.
+          작품 정보·치수·전시실 위치는
           <a href="https://collections.louvre.fr/" target="_blank" rel="noopener noreferrer"
             >루브르 공식 소장품 데이터베이스</a
           >를 따릅니다.
+          <button id="start-about" type="button" class="link-button">소개·출처 보기</button>
         </p>
       </div>
     </div>

@@ -14,6 +14,83 @@
 
   "rooms": [
     {
+      "id": "exterior",
+      "kind": "exterior",
+      "nameKo": "박물관 앞뜰",
+      "nameFr": "Cour Napoléon",
+      "subtitle": "유리 피라미드가 선 안뜰 — 나폴레옹 광장에서 영감을 받은 입장 공간",
+      "menuLabel": "밖 — 박물관 앞뜰",
+      "intro": "ㄷ자로 둘러싼 궁전 안뜰 한가운데에 유리 피라미드가 서 있습니다. 피라미드 아래로 내려가면 전시실로 이어지는 중앙 홀이 나옵니다. 실제 건물을 그대로 재현한 것이 아니라 전체 인상만 단순하게 옮긴 공간입니다.",
+
+      "dimensions": { "width": 130, "depth": 118, "height": 44 },
+      "spawn": { "position": [0, 0, 40], "yaw": 0 },
+
+      "materials": {
+        "wall": "#cfc5ae",
+        "wainscot": "#b3a890",
+        "floor": "#b0a894",
+        "ceiling": "#9fc4e8",
+        "trim": "#a98f5c"
+      },
+      "lighting": {
+        "hemisphere": { "sky": "#cfe4ff", "ground": "#b0a894", "intensity": 2.1 },
+        "fill": { "color": "#fff4dd", "intensity": 2.0, "position": [34, 46, 30] },
+        "fillBack": { "color": "#cfe0ff", "intensity": 0.5, "position": [-30, 34, -26] },
+        "spot": { "color": "#fff4e2", "intensity": 10, "angle": 0.6, "penumbra": 0.8, "decay": 2 }
+      },
+
+      "sky": { "top": "#2f6fc4", "middle": "#8fbbe8", "bottom": "#e4ecef", "radius": 220 },
+
+      "$comment_features": "외관 구성물. glassPyramid 은 실제 비율(밑변 35 m, 높이 21.6 m)을 따른다.",
+      "features": [
+        { "type": "glassPyramid", "position": [0, 0], "base": 35, "height": 21.6, "color": "#bcd6ea", "frame": "#8d949c" },
+        { "type": "glassPyramid", "position": [-26, 14], "base": 6.5, "height": 4.0, "color": "#bcd6ea", "frame": "#8d949c" },
+        { "type": "glassPyramid", "position": [26, 14], "base": 6.5, "height": 4.0, "color": "#bcd6ea", "frame": "#8d949c" },
+        { "type": "glassPyramid", "position": [0, -26], "base": 6.5, "height": 4.0, "color": "#bcd6ea", "frame": "#8d949c" },
+        { "type": "basin", "position": [-24, -4], "size": [13, 9], "depth": 0.35, "water": "#4d7f96" },
+        { "type": "basin", "position": [24, -4], "size": [13, 9], "depth": 0.35, "water": "#4d7f96" },
+        { "type": "basin", "position": [0, 24], "size": [16, 7], "depth": 0.35, "water": "#4d7f96" },
+        { "type": "palaceWing", "center": [0, -50], "size": [122, 18], "height": 24, "floors": 4, "bays": 26 },
+        { "type": "palaceWing", "center": [-56, 6], "size": [18, 94], "height": 24, "floors": 4, "bays": 20 },
+        { "type": "palaceWing", "center": [56, 6], "size": [18, 94], "height": 24, "floors": 4, "bays": 20 }
+      ],
+
+      "$comment_ground": "피라미드 입구 앞의 얕은 단. ground 는 바닥 높이를 바꾸는 요소다.",
+      "ground": [
+        { "type": "platform", "min": [-6, 17.5], "max": [6, 21.0], "y": 0.3 },
+        { "type": "ramp", "axis": "z", "min": [-6, 21.0], "max": [6, 24.0], "y0": 0.3, "y1": 0.0 }
+      ],
+
+      "walls": [],
+
+      "colliders": [
+        { "id": "pyramid", "min": [-17.5, 0, -17.5], "max": [17.5, 21.6, 17.5], "height": 21.6 },
+        { "id": "wing-north", "min": [-61, 0, -59], "max": [61, 24, -41] },
+        { "id": "wing-west", "min": [-65, 0, -41], "max": [-47, 24, 53] },
+        { "id": "wing-east", "min": [47, 0, -41], "max": [65, 24, 53] },
+        { "id": "south-edge", "min": [-61, 0, 55], "max": [61, 6, 59] },
+        { "id": "basin-w", "min": [-30.5, 0, -8.5], "max": [-17.5, 0.35, 0.5] },
+        { "id": "basin-e", "min": [17.5, 0, -8.5], "max": [30.5, 0.35, 0.5] },
+        { "id": "basin-s", "min": [-8, 0, 20.5], "max": [8, 0.35, 27.5] }
+      ],
+
+      "furniture": [],
+
+      "portals": [
+        {
+          "id": "to-lobby",
+          "target": "lobby",
+          "position": [0, 0.3, 17.6],
+          "rotationY": 0,
+          "transition": "descend",
+          "titleKo": "박물관 입장하기",
+          "titleFr": "Hall Napoléon",
+          "note": "피라미드 아래 중앙 홀로 내려갑니다"
+        }
+      ]
+    },
+
+    {
       "id": "lobby",
       "kind": "lobby",
       "nameKo": "나폴레옹 홀",
@@ -62,17 +139,27 @@
           "target": "salle-des-etats",
           "wall": "north",
           "face": "+",
-          "offset": 0,
+          "offset": -8,
           "titleKo": "국가의 방",
           "titleFr": "Salle des États · 711",
           "note": "16세기 베네치아 회화 · 모나리자"
+        },
+        {
+          "id": "to-escalier-daru",
+          "target": "escalier-daru",
+          "wall": "north",
+          "face": "+",
+          "offset": 8,
+          "titleKo": "다뤼 계단",
+          "titleFr": "Escalier Daru · 703",
+          "note": "계단 위의 사모트라케의 니케"
         },
         {
           "id": "to-peinture-francaise",
           "target": "peinture-francaise",
           "wall": "east",
           "face": "-",
-          "offset": 0,
+          "offset": -7,
           "titleKo": "프랑스 대형 회화실",
           "titleFr": "Mollien · 700 / Daru · 702",
           "note": "신고전주의와 낭만주의의 대형 역사화"
@@ -80,12 +167,33 @@
         {
           "id": "to-grande-galerie",
           "target": "grande-galerie",
-          "wall": "west",
-          "face": "+",
-          "offset": 0,
+          "wall": "east",
+          "face": "-",
+          "offset": 7,
           "titleKo": "그랑드 갤러리",
           "titleFr": "Grande Galerie · 710",
           "note": "이탈리아 르네상스 회화의 긴 회랑"
+        },
+        {
+          "id": "to-salle-venus",
+          "target": "salle-venus",
+          "wall": "west",
+          "face": "+",
+          "offset": 0,
+          "titleKo": "비너스 전시실",
+          "titleFr": "Sully · 345",
+          "note": "밀로의 비너스 — 쉴리관 방향"
+        },
+        {
+          "id": "to-exterior",
+          "target": "exterior",
+          "wall": "south",
+          "face": "-",
+          "offset": 0,
+          "transition": "ascend",
+          "titleKo": "밖으로 나가기",
+          "titleFr": "Cour Napoléon",
+          "note": "유리 피라미드 앞뜰로 올라갑니다"
         }
       ]
     },
@@ -213,6 +321,98 @@
 
       "portals": [
         { "id": "exit", "target": "lobby", "wall": "north", "face": "+", "offset": 0, "titleKo": "로비로 돌아가기", "titleFr": "Hall Napoléon", "note": "나폴레옹 홀" }
+      ]
+    },
+
+    {
+      "id": "escalier-daru",
+      "kind": "gallery",
+      "nameKo": "다뤼 계단",
+      "nameFr": "Escalier Daru",
+      "subtitle": "루브르 박물관 드농관 703호 · 사모트라케의 니케",
+      "menuLabel": "조각 1 — 다뤼 계단 (703)",
+      "intro": "넓은 계단을 올라서면 층계참 위에 사모트라케의 니케가 서 있습니다. 1883년부터 이 자리에 놓여, 계단을 오르는 동안 아래에서 올려다보도록 전시되어 왔습니다. 계단을 올라 조각 주위를 한 바퀴 돌아 보세요.",
+
+      "dimensions": { "width": 20, "depth": 34, "height": 17 },
+      "spawn": { "position": [0, 0, 13], "yaw": 0 },
+
+      "materials": {
+        "wall": "#a8977c",
+        "wainscot": "#6f6252",
+        "floor": "#9c8f78",
+        "ceiling": "#efe8da",
+        "trim": "#c2a469"
+      },
+      "lighting": {
+        "hemisphere": { "sky": "#fff6e4", "ground": "#8d8070", "intensity": 2.0 },
+        "fill": { "color": "#fff3dc", "intensity": 0.8, "position": [8, 20, 14] },
+        "fillBack": { "color": "#dde8fb", "intensity": 0.5, "position": [-9, 18, -14] },
+        "spot": { "color": "#fff4e2", "intensity": 22, "angle": 0.6, "penumbra": 0.8, "decay": 2 }
+      },
+
+      "features": [
+        { "type": "stairs", "min": [-10, -4], "max": [10, 4], "y0": 4.5, "y1": 0, "steps": 24, "color": "#9c8f78" }
+      ],
+
+      "ground": [
+        { "type": "platform", "min": [-10, -17], "max": [10, -4], "y": 4.5 },
+        { "type": "ramp", "axis": "z", "min": [-10, -4], "max": [10, 4], "y0": 4.5, "y1": 0 }
+      ],
+
+      "walls": [
+        { "id": "south", "axis": "x", "center": [0, 17.25], "length": 20.5, "thickness": 0.5, "height": 17, "faces": ["-"] },
+        { "id": "north", "axis": "x", "center": [0, -17.25], "length": 20.5, "thickness": 0.5, "height": 17, "faces": ["+"] },
+        { "id": "west", "axis": "z", "center": [-10.25, 0], "length": 34.5, "thickness": 0.5, "height": 17, "faces": ["+"] },
+        { "id": "east", "axis": "z", "center": [10.25, 0], "length": 34.5, "thickness": 0.5, "height": 17, "faces": ["-"] }
+      ],
+
+      "furniture": [],
+
+      "portals": [
+        { "id": "exit", "target": "lobby", "wall": "south", "face": "-", "offset": 0, "titleKo": "로비로 돌아가기", "titleFr": "Hall Napoléon", "note": "나폴레옹 홀" }
+      ]
+    },
+
+    {
+      "id": "salle-venus",
+      "kind": "gallery",
+      "nameKo": "비너스 전시실",
+      "nameFr": "Salle 345 · Sully",
+      "subtitle": "루브르 박물관 쉴리관 0층 345호 · 밀로의 비너스",
+      "menuLabel": "조각 2 — 비너스 전시실 (345)",
+      "intro": "쉴리관 0층, 그리스 고전·헬레니즘 조각을 모은 전시실입니다. 밀로의 비너스는 받침 위에 홀로 놓여 사방에서 돌아볼 수 있게 전시되어 있습니다.",
+
+      "dimensions": { "width": 17, "depth": 21, "height": 9.5 },
+      "spawn": { "position": [0, 0, 7.5], "yaw": 0 },
+
+      "materials": {
+        "wall": "#9c8768",
+        "wainscot": "#6b5a44",
+        "floor": "#8e8371",
+        "ceiling": "#f2ece0",
+        "trim": "#c2a469"
+      },
+      "lighting": {
+        "hemisphere": { "sky": "#fff8ea", "ground": "#8e8371", "intensity": 2.0 },
+        "fill": { "color": "#fff3dc", "intensity": 0.8, "position": [7, 12, 8] },
+        "fillBack": { "color": "#e2ecff", "intensity": 0.55, "position": [-7, 11, -8] },
+        "spot": { "color": "#fff4e2", "intensity": 22, "angle": 0.6, "penumbra": 0.8, "decay": 2 }
+      },
+
+      "walls": [
+        { "id": "south", "axis": "x", "center": [0, 10.75], "length": 17.5, "thickness": 0.5, "height": 9.5, "faces": ["-"] },
+        { "id": "north", "axis": "x", "center": [0, -10.75], "length": 17.5, "thickness": 0.5, "height": 9.5, "faces": ["+"] },
+        { "id": "west", "axis": "z", "center": [-8.75, 0], "length": 21.5, "thickness": 0.5, "height": 9.5, "faces": ["+"] },
+        { "id": "east", "axis": "z", "center": [8.75, 0], "length": 21.5, "thickness": 0.5, "height": 9.5, "faces": ["-"] }
+      ],
+
+      "furniture": [
+        { "id": "bench-w", "type": "bench", "position": [-6, 2], "size": [1.1, 0.45, 2.8], "color": "#4a3b2c" },
+        { "id": "bench-e", "type": "bench", "position": [6, 2], "size": [1.1, 0.45, 2.8], "color": "#4a3b2c" }
+      ],
+
+      "portals": [
+        { "id": "exit", "target": "lobby", "wall": "south", "face": "-", "offset": 0, "titleKo": "로비로 돌아가기", "titleFr": "Hall Napoléon", "note": "나폴레옹 홀" }
       ]
     }
   ]

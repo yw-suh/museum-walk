@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import './style.css';
 
+import { SITE, FULL_TITLE } from './config.js';
 import { listRooms, getRoom, defaultRoomId } from './data/catalog.js';
 import { PlayerState } from './core/PlayerState.js';
 import { InputSource, isTouchDevice } from './core/input.js';
@@ -18,14 +19,19 @@ import { RemoteAvatarGroup } from './net/RemoteAvatar.js';
 import { createStartOverlay } from './ui/startOverlay.js';
 import { createInfoPanel } from './ui/infoPanel.js';
 import { createImageViewer } from './ui/imageViewer.js';
+import { createModelViewer } from './ui/modelViewer.js';
 import { createHud } from './ui/hud.js';
 import { createRoomMenu } from './ui/roomMenu.js';
+import { createAbout } from './ui/about.js';
 import { createTouchControls } from './ui/touchControls.js';
 import { createDebugOverlay } from './ui/debugOverlay.js';
 
 const NET_SEND_INTERVAL = 1 / 12; // 초당 12번 — Phase 3 에서 서버로 보낼 주기
+const TRANSITION_MS = 2400; // 피라미드 아래로 내려가는 연출 길이
 
 async function main() {
+  applySiteConfig();
+
   const canvas = document.querySelector('#scene');
   const route = readRoute();
   const rooms = listRooms();
@@ -51,16 +57,23 @@ async function main() {
 
   // ── UI ───────────────────────────────────────────────────────────────────
   const viewer = createImageViewer();
-  const infoPanel = createInfoPanel({ onZoom: (painting) => viewer.show(painting) });
+  const modelViewer = createModelViewer();
+  const infoPanel = createInfoPanel({
+    onZoom: (painting) => viewer.show(painting),
+    onOrbit: (sculpture) => modelViewer.show(sculpture),
+  });
+  const about = createAbout();
   const roomMenu = createRoomMenu({ rooms, onSelect: (id) => travelTo(id) });
-  const hud = createHud({ onMenu: () => roomMenu.toggle() });
-  const startOverlay = createStartOverlay({ onEnter: enter });
+  const hud = createHud({ onMenu: () => roomMenu.toggle(), onAbout: () => about.toggle() });
+  const startOverlay = createStartOverlay({ onEnter: enter, onAbout: () => about.open() });
   const debugTick = route.debug ? createDebugOverlay(renderer) : null;
 
   const travelEl = document.querySelector('#travel');
   const travelName = document.querySelector('#travel-name');
   const travelBar = document.querySelector('#travel-bar');
   const travelText = document.querySelector('#travel-text');
+  const transitionEl = document.querySelector('#transition');
+  const transitionText = document.querySelector('#transition-text');
 
   const touchEnter = document.querySelector('#touch-enter');
   const touchView = document.querySelector('#touch-view');
@@ -70,7 +83,7 @@ async function main() {
   });
   touchView.addEventListener('click', () => controller.toggleView());
   touchEnter.addEventListener('click', () => {
-    if (pendingPortal) travelTo(pendingPortal.target);
+    if (pendingPortal) travelTo(pendingPortal.target, { transition: pendingPortal.transition });
   });
 
   // ── 공간 로딩 ────────────────────────────────────────────────────────────
@@ -94,26 +107,28 @@ async function main() {
       if (initial) startOverlay.setProgress(ratio, loaded, total);
       else {
         travelBar.style.width = `${percent}%`;
-        travelText.textContent = total ? `작품 이미지 ${loaded}/${total} · ${percent}%` : `${percent}%`;
+        travelText.textContent = total ? `${loaded}/${total} · ${percent}%` : `${percent}%`;
       }
     };
 
     const next = await RoomSession.load(scene, roomId, onProgress);
 
-    // 새 방이 준비된 뒤에 이전 방을 해제한다 (화면이 비는 순간이 없도록)
+    // 새 공간이 준비된 뒤에 이전 공간을 해제한다 (화면이 비는 순간이 없도록)
     session?.dispose();
     session = next;
 
     player.roomId = roomId;
-    controller.setRoom(room, session.colliders);
+    controller.setRoom(room, session.colliders, session.ground);
     picker.setTargets(session.pickTargets);
-    hud.setRoom(room, session.paintings.length);
+    hud.setRoom(room, session.paintings.length, session.sculptures.length);
     roomMenu.setCurrent(roomId);
     remotes.clear();
     if (net instanceof BotAdapter) net.spawn(roomId);
 
-    scene.background = new THREE.Color(room.materials.wainscot);
-    scene.fog = new THREE.Fog(room.materials.wainscot, 26, 90);
+    scene.background = new THREE.Color(room.sky ? room.sky.bottom : room.materials.wainscot);
+    scene.fog = room.sky
+      ? new THREE.Fog(room.sky.bottom, 90, 260)
+      : new THREE.Fog(room.materials.wainscot, 26, 90);
     applyRoomLighting(scene, room);
 
     travelEl.classList.add('hidden');
@@ -121,12 +136,30 @@ async function main() {
     onProgress(1, 0, 0);
   }
 
-  async function travelTo(roomId, { fromHistory = false } = {}) {
+  /**
+   * 공간 이동. transition 이 있으면 계단을 내려가는/올라오는 짧은 연출을 끼운다.
+   * 연출 중에 다음 공간을 미리 불러두기 때문에 기다리는 시간이 겹친다.
+   */
+  async function travelTo(roomId, { fromHistory = false, transition } = {}) {
     if (traveling || roomId === player.roomId) return;
     infoPanel.close();
     viewer.close();
+    modelViewer.close();
     roomMenu.close();
-    await loadRoom(roomId);
+    about.close();
+
+    if (transition) {
+      transitionText.textContent =
+        transition === 'descend' ? '계단을 내려가는 중…' : '계단을 올라가는 중…';
+      transitionEl.classList.remove('hidden', 'leaving');
+      const wait = new Promise((r) => setTimeout(r, TRANSITION_MS));
+      await Promise.all([loadRoom(roomId), wait]);
+      transitionEl.classList.add('leaving');
+      setTimeout(() => transitionEl.classList.add('hidden'), 600);
+    } else {
+      await loadRoom(roomId);
+    }
+
     if (!fromHistory) writeRoom(roomId);
   }
 
@@ -169,16 +202,31 @@ async function main() {
 
   let openingPanel = false;
 
-  /** 작품 → 정보 패널, 포털 → 공간 이동 */
+  /** 작품·조각 → 정보 패널, 포털 → 공간 이동 */
   function handlePick(hit) {
     if (!hit) return false;
     if (hit.kind === 'portal') {
-      travelTo(hit.portal.target);
+      travelTo(hit.portal.target, { transition: hit.portal.transition });
       return true;
     }
-    const world = hit.object.getWorldPosition(new THREE.Vector3());
-    controller.faceArtwork(world, hit.object.userData.normal, hit.painting.placement.viewFrom);
-    infoPanel.show(hit.painting);
+
+    const work = hit.painting ?? hit.sculpture;
+    if (hit.kind === 'painting') {
+      const world = hit.object.getWorldPosition(new THREE.Vector3());
+      controller.faceArtwork(world, hit.object.userData.normal, work.placement.viewFrom);
+    } else {
+      // 조각은 어느 쪽에서 봤는지가 중요하므로, 보던 방향을 유지한 채 거리만 맞춘다
+      const base = new THREE.Vector3(...work.placement.position);
+      const away = new THREE.Vector3()
+        .subVectors(controller.position, base)
+        .setY(0);
+      if (away.lengthSq() < 0.01) away.set(0, 0, 1);
+      away.normalize();
+      const aim = base.clone().setY(base.y + work.size.heightCm / 200);
+      controller.faceArtwork(aim, away, work.placement.viewFrom ?? 4);
+    }
+
+    infoPanel.show(work, hit.kind);
     if (!isTouchDevice) {
       openingPanel = true;
       controller.unlock();
@@ -194,7 +242,7 @@ async function main() {
       return;
     }
     // 잠금이 풀린 상태에서 전시실을 클릭하면 패널을 닫고 다시 잠근다
-    if (viewer.isOpen || roomMenu.isOpen || startOverlay.isVisible) return;
+    if (viewer.isOpen || modelViewer.isOpen || roomMenu.isOpen || about.isOpen || startOverlay.isVisible) return;
     if (event.target !== canvas) return;
     infoPanel.close();
     controller.lock();
@@ -212,12 +260,14 @@ async function main() {
       return;
     }
     if (event.code === 'KeyE' && controller.locked && picker.current?.kind === 'portal') {
-      travelTo(picker.current.portal.target);
+      travelTo(picker.current.portal.target, { transition: picker.current.portal.transition });
       return;
     }
     if (event.code !== 'Escape' || controller.locked) return;
 
-    if (viewer.isOpen) viewer.close();
+    if (modelViewer.isOpen) modelViewer.close();
+    else if (viewer.isOpen) viewer.close();
+    else if (about.isOpen) about.close();
     else if (roomMenu.isOpen) roomMenu.close();
     else if (infoPanel.isOpen) infoPanel.close();
     else startOverlay.show();
@@ -230,7 +280,8 @@ async function main() {
   renderer.setAnimationLoop(() => {
     const dt = Math.min(clock.getDelta(), 0.1);
 
-    controller.frozen = infoPanel.isOpen || viewer.isOpen || roomMenu.isOpen;
+    controller.frozen =
+      infoPanel.isOpen || viewer.isOpen || modelViewer.isOpen || roomMenu.isOpen || about.isOpen;
     controller.update(dt);
     remotes.update(dt);
 
@@ -259,21 +310,36 @@ async function main() {
     if (!isTouchDevice) return;
     pendingPortal = target?.kind === 'portal' ? target.portal : null;
     touchEnter.classList.toggle('hidden', !pendingPortal);
-    if (pendingPortal) touchEnter.textContent = `${pendingPortal.titleKo} 입장`;
+    if (pendingPortal) touchEnter.textContent = `${pendingPortal.titleKo}`;
   }
 
   startOverlay.ready();
 
   if (import.meta.env.DEV) {
     window.__museum = {
-      scene, camera, renderer, controller, picker, infoPanel, viewer, roomMenu,
+      scene, camera, renderer, controller, picker, infoPanel, viewer, modelViewer, roomMenu, about,
       player, net, remotes, travelTo,
       get session() { return session; },
     };
   }
 }
 
-/** 방마다 다른 조명으로 갈아 끼운다 (조명은 씬에 직접 붙어 있다) */
+/** config.js 의 값을 화면 곳곳에 적용 */
+function applySiteConfig() {
+  document.title = FULL_TITLE;
+  document.querySelector('#start-title').textContent = SITE.NAME;
+  document.querySelector('#start-tagline').textContent = SITE.TAGLINE;
+  document.querySelector('#start-disclaimer').textContent = SITE.DISCLAIMER;
+  document.querySelector('#about-title').textContent = SITE.NAME;
+
+  const footer = document.querySelector('#footer-note');
+  footer.textContent = SITE.DISCLAIMER;
+  footer.classList.remove('hidden');
+
+  if (SITE.SHOW_BETA) document.querySelector('#beta-badge').classList.remove('hidden');
+}
+
+/** 공간마다 다른 조명으로 갈아 끼운다 (조명은 씬에 직접 붙어 있다) */
 function applyRoomLighting(scene, room) {
   const { hemisphere, fill, fillBack } = room.lighting;
   for (const light of scene.children.filter((o) => o.userData.roomLight)) {

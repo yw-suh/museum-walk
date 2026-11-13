@@ -20,9 +20,11 @@ export function buildRoom(room) {
   floor.rotation.x = -Math.PI / 2;
   group.add(floor);
 
-  // ── 천장 ──────────────────────────────────────────────────────────────────
+  // ── 천장 (바깥 공간은 하늘) ───────────────────────────────────────────────
   const vault = (room.features ?? []).find((f) => f.type === 'vault');
-  if (vault) {
+  if (room.sky) {
+    group.add(makeSky(room.sky));
+  } else if (vault) {
     group.add(makeVault(vault, depth));
   } else {
     const ceiling = new THREE.Mesh(
@@ -98,21 +100,47 @@ export function buildRoom(room) {
     );
   }
 
-  // ── 로비 전용 장식 ────────────────────────────────────────────────────────
+  // ── 데이터로 직접 적은 충돌 박스 (바깥 공간의 건물·피라미드·수반 등) ─────
+  for (const box of room.colliders ?? []) {
+    colliders.push(new THREE.Box3(new THREE.Vector3(...box.min), new THREE.Vector3(...box.max)));
+  }
+
+  // ── 공간별 장식 ───────────────────────────────────────────────────────────
   for (const feature of room.features ?? []) {
     if (feature.type === 'pyramid') group.add(makePyramid(feature, height));
     if (feature.type === 'medallion') group.add(makeMedallion(feature));
+    if (feature.type === 'glassPyramid') group.add(makeGlassPyramid(feature));
+    if (feature.type === 'basin') group.add(makeBasin(feature));
+    if (feature.type === 'palaceWing') group.add(makePalaceWing(feature));
+    if (feature.type === 'stairs') group.add(makeStairs(feature));
   }
 
   // ── 포털(문 + 안내판) ─────────────────────────────────────────────────────
   const portalTargets = [];
   for (const portal of room.portals ?? []) {
-    const wall = wallIndex.get(portal.wall);
-    if (!wall) {
-      console.warn(`[room] 포털 '${portal.id}' 의 벽 '${portal.wall}' 을 찾을 수 없습니다.`);
+    // 벽에 붙은 문이거나(wall), 바깥처럼 벽이 없는 곳에서는 좌표를 직접 적는다(position)
+    let anchor;
+    if (portal.wall) {
+      const wall = wallIndex.get(portal.wall);
+      if (!wall) {
+        console.warn(`[room] 포털 '${portal.id}' 의 벽 '${portal.wall}' 을 찾을 수 없습니다.`);
+        continue;
+      }
+      anchor = anchorOnWall(wall, { ...portal, centerHeight: PORTAL.height / 2 });
+    } else if (portal.position) {
+      anchor = {
+        position: new THREE.Vector3(
+          portal.position[0],
+          portal.position[1] + PORTAL.height / 2,
+          portal.position[2],
+        ),
+        rotationY: portal.rotationY ?? 0,
+      };
+    } else {
+      console.warn(`[room] 포털 '${portal.id}' 에 wall 도 position 도 없습니다.`);
       continue;
     }
-    const built = makePortal(portal, wall, trimMaterial.color);
+    const built = makePortal(portal, anchor, trimMaterial.color);
     group.add(built.group);
     portalTargets.push(built.target);
   }
@@ -155,9 +183,8 @@ export function anchorOnWall(wall, placement) {
 const PORTAL = { width: 3.0, height: 3.6, signHeight: 1.05 };
 
 /** 포털: 어두운 문 구멍 + 금색 문틀 + 안내판. 안내판 면이 Raycaster 판정 대상이다. */
-function makePortal(portal, wall, trimColor) {
+function makePortal(portal, anchor, trimColor) {
   const group = new THREE.Group();
-  const anchor = anchorOnWall(wall, { ...portal, centerHeight: PORTAL.height / 2 });
   group.position.copy(anchor.position);
   group.rotation.y = anchor.rotationY;
 
@@ -238,6 +265,236 @@ function makeSignTexture(portal) {
   texture.colorSpace = THREE.SRGBColorSpace;
   texture.anisotropy = 8;
   return texture;
+}
+
+/** 하늘 — 위에서 아래로 색이 바뀌는 반구 */
+function makeSky(sky) {
+  const canvas = document.createElement('canvas');
+  canvas.width = 4;
+  canvas.height = 256;
+  const ctx = canvas.getContext('2d');
+  const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+  gradient.addColorStop(0, sky.top);
+  gradient.addColorStop(0.55, sky.middle);
+  gradient.addColorStop(1, sky.bottom);
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+
+  const mesh = new THREE.Mesh(
+    new THREE.SphereGeometry(sky.radius ?? 200, 32, 20),
+    new THREE.MeshBasicMaterial({ map: texture, side: THREE.BackSide, depthWrite: false, fog: false }),
+  );
+  mesh.renderOrder = -1;
+  return mesh;
+}
+
+/**
+ * 바깥의 유리 피라미드 — 금속 격자 + 반투명 유리.
+ * 밑변·높이는 데이터에 적은 실제 비율을 그대로 쓴다.
+ */
+function makeGlassPyramid(feature) {
+  const group = new THREE.Group();
+  const [px, pz] = feature.position;
+  const half = feature.base / 2;
+
+  // 유리면 — 사각뿔을 ConeGeometry(세그먼트 4)로 만든다
+  const geometry = new THREE.ConeGeometry(half * Math.SQRT2, feature.height, 4, 1, true);
+  geometry.rotateY(Math.PI / 4);
+
+  const glass = new THREE.Mesh(
+    geometry,
+    new THREE.MeshStandardMaterial({
+      color: feature.color,
+      roughness: 0.08,
+      metalness: 0.1,
+      transparent: true,
+      opacity: 0.42,
+      side: THREE.DoubleSide,
+    }),
+  );
+  glass.position.set(px, feature.height / 2, pz);
+  group.add(glass);
+
+  // 금속 격자 — 네 모서리 + 가로줄
+  const frameMaterial = new THREE.MeshStandardMaterial({
+    color: feature.frame,
+    roughness: 0.35,
+    metalness: 0.85,
+  });
+  const barWidth = Math.max(0.05, feature.base * 0.008);
+  const corners = [
+    [-half, -half],
+    [half, -half],
+    [half, half],
+    [-half, half],
+  ];
+  for (const [cx, cz] of corners) {
+    const length = Math.hypot(Math.hypot(cx, cz), feature.height);
+    const bar = new THREE.Mesh(new THREE.BoxGeometry(barWidth, length, barWidth), frameMaterial);
+    bar.position.set(px + cx / 2, feature.height / 2, pz + cz / 2);
+    bar.lookAt(px, feature.height, pz);
+    bar.rotateX(Math.PI / 2);
+    group.add(bar);
+  }
+
+  // 수평 격자 — 높이에 따라 줄어드는 사각 테두리
+  const rows = Math.max(3, Math.round(feature.base / 4));
+  for (let i = 1; i < rows; i++) {
+    const t = i / rows;
+    const size = feature.base * (1 - t);
+    const ring = new THREE.LineSegments(
+      new THREE.EdgesGeometry(new THREE.BoxGeometry(size, 0.001, size)),
+      new THREE.LineBasicMaterial({ color: feature.frame, transparent: true, opacity: 0.75 }),
+    );
+    ring.position.set(px, feature.height * t, pz);
+    group.add(ring);
+  }
+
+  return group;
+}
+
+/** 얕은 수반 — 테두리 돌 + 물 면 */
+function makeBasin(feature) {
+  const group = new THREE.Group();
+  const [px, pz] = feature.position;
+  const [sx, sz] = feature.size;
+  const depth = feature.depth ?? 0.35;
+
+  const stone = new THREE.MeshStandardMaterial({ color: '#b9ad96', roughness: 0.85 });
+  const rim = new THREE.Mesh(new THREE.BoxGeometry(sx, depth, sz), stone);
+  rim.position.set(px, depth / 2, pz);
+  group.add(rim);
+
+  const water = new THREE.Mesh(
+    new THREE.PlaneGeometry(sx - 0.7, sz - 0.7),
+    new THREE.MeshStandardMaterial({
+      color: feature.water,
+      roughness: 0.08,
+      metalness: 0.45,
+      transparent: true,
+      opacity: 0.85,
+    }),
+  );
+  water.rotation.x = -Math.PI / 2;
+  water.position.set(px, depth + 0.01, pz);
+  group.add(water);
+  return group;
+}
+
+/**
+ * 궁전 외관 — 석조 매스 하나에 창·기둥 패턴 텍스처를 입힌 단순화 버전.
+ * 사진 수준 재현이 아니라 "줄지어 선 창과 기둥"이라는 인상만 옮긴다.
+ */
+function makePalaceWing(feature) {
+  const [cx, cz] = feature.center;
+  const [sx, sz] = feature.size;
+  const facade = makeFacadeTexture(feature);
+
+  const long = sx >= sz;
+  const repeatLong = Math.max(1, Math.round((long ? sx : sz) / 24));
+
+  const side = (repeatX) => {
+    const texture = facade.clone();
+    texture.needsUpdate = true;
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    texture.repeat.set(repeatX, 1);
+    return new THREE.MeshStandardMaterial({ map: texture, roughness: 0.92 });
+  };
+
+  const plain = new THREE.MeshStandardMaterial({ color: '#c6bca6', roughness: 0.95 });
+  const longFace = side(repeatLong);
+  const short = side(1);
+
+  // BoxGeometry 재질 순서: +X, -X, +Y, -Y, +Z, -Z
+  const materials = long
+    ? [short, short, plain, plain, longFace, longFace]
+    : [longFace, longFace, plain, plain, short, short];
+
+  const mesh = new THREE.Mesh(new THREE.BoxGeometry(sx, feature.height, sz), materials);
+  mesh.position.set(cx, feature.height / 2, cz);
+
+  const group = new THREE.Group();
+  group.add(mesh);
+
+  // 지붕 — 살짝 튀어나온 처마
+  const roof = new THREE.Mesh(
+    new THREE.BoxGeometry(sx + 1.2, 1.1, sz + 1.2),
+    new THREE.MeshStandardMaterial({ color: '#6e6a63', roughness: 0.8 }),
+  );
+  roof.position.set(cx, feature.height + 0.55, cz);
+  group.add(roof);
+  return group;
+}
+
+/** 창과 기둥이 반복되는 외벽 텍스처 */
+function makeFacadeTexture(feature) {
+  const bays = Math.max(4, Math.min(28, feature.bays ?? 20));
+  const floors = Math.max(2, feature.floors ?? 4);
+  const cell = 64;
+  const canvas = document.createElement('canvas');
+  canvas.width = bays * cell;
+  canvas.height = floors * cell;
+  const ctx = canvas.getContext('2d');
+
+  ctx.fillStyle = '#cfc5ae';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // 층 사이 띠
+  ctx.fillStyle = '#b8ad95';
+  for (let f = 1; f < floors; f++) {
+    ctx.fillRect(0, canvas.height - f * cell - 4, canvas.width, 8);
+  }
+  // 1층 기단
+  ctx.fillStyle = '#ab9f87';
+  ctx.fillRect(0, canvas.height - cell, canvas.width, cell);
+
+  for (let b = 0; b < bays; b++) {
+    const x = b * cell;
+    // 기둥(필라스터)
+    ctx.fillStyle = '#d8cfba';
+    ctx.fillRect(x + 2, 0, 7, canvas.height);
+
+    for (let f = 0; f < floors; f++) {
+      const y = canvas.height - (f + 1) * cell;
+      const isGround = f === 0;
+      const w = isGround ? 22 : 26;
+      const h = isGround ? 30 : 38;
+      ctx.fillStyle = '#3c4654';
+      ctx.fillRect(x + (cell - w) / 2, y + (cell - h) / 2 + 4, w, h);
+      // 창 위 돌림장식
+      ctx.fillStyle = '#e0d7c2';
+      ctx.fillRect(x + (cell - w) / 2 - 3, y + (cell - h) / 2, w + 6, 5);
+    }
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+  texture.anisotropy = 8;
+  return texture;
+}
+
+/** 계단 — ground 의 ramp 와 같은 구간에 단을 쌓아 눈에 보이게 한다 */
+function makeStairs(feature) {
+  const group = new THREE.Group();
+  const [minX, minZ] = feature.min;
+  const [maxX, maxZ] = feature.max;
+  const steps = feature.steps ?? 20;
+  const width = maxX - minX;
+  const run = (maxZ - minZ) / steps;
+  const material = new THREE.MeshStandardMaterial({ color: feature.color ?? '#9c8f78', roughness: 0.9 });
+
+  for (let i = 0; i < steps; i++) {
+    const t = i / steps;
+    const y = feature.y0 + (feature.y1 - feature.y0) * t;
+    const step = new THREE.Mesh(new THREE.BoxGeometry(width, Math.max(0.08, y), run), material);
+    step.position.set((minX + maxX) / 2, Math.max(0.04, y / 2), minZ + run * (i + 0.5));
+    group.add(step);
+  }
+  return group;
 }
 
 /** 유리 피라미드 (로비) */

@@ -1,40 +1,40 @@
 import * as THREE from 'three';
-import { getRoom, getPaintings } from '../data/catalog.js';
+import { getRoom, getPaintings, getSculptures } from '../data/catalog.js';
 import { buildRoom } from './buildRoom.js';
 import { buildPaintings } from './buildPaintings.js';
+import { buildSculptures } from './buildSculptures.js';
+import { createGroundSampler } from './ground.js';
 
 /**
  * 공간 하나를 씬에 올리고 내리는 단위.
  *
- * 방을 옮길 때 이전 방의 지오메트리·재질·**텍스처를 모두 dispose** 한다.
- * 전시실마다 수 MB 짜리 텍스처를 쓰기 때문에, 해제하지 않으면
+ * 방을 옮길 때 이전 방의 지오메트리·재질·**텍스처와 조각 모델을 모두 dispose** 한다.
+ * 전시실마다 수 MB 짜리 텍스처와 조각 GLB 를 쓰기 때문에, 해제하지 않으면
  * 방을 몇 번 오갈 때마다 GPU 메모리가 계속 쌓인다.
  */
 export class RoomSession {
-  /**
-   * @param {THREE.Scene} scene
-   * @param {object} room  catalog.getRoom 결과
-   * @param {object} parts buildRoom/buildPaintings 결과
-   */
   constructor(scene, room, parts) {
     this.scene = scene;
     this.room = room;
     this.paintings = parts.paintings;
+    this.sculptures = parts.sculptures;
     this.colliders = parts.colliders;
-    this.pickTargets = [...parts.paintingTargets, ...parts.portalTargets];
+    this.ground = parts.ground;
+    this.pickTargets = [...parts.paintingTargets, ...parts.sculptureTargets, ...parts.portalTargets];
     this.group = new THREE.Group();
     this.group.name = `room:${room.id}`;
-    this.group.add(parts.roomGroup, parts.artGroup);
+    this.group.add(parts.roomGroup, parts.artGroup, parts.sculptureGroup);
     scene.add(this.group);
   }
 
   /**
-   * 공간을 만들어 씬에 올린다. 텍스처 로딩 진행률은 onProgress 로 전달된다.
+   * 공간을 만들어 씬에 올린다. 텍스처·모델 로딩 진행률은 onProgress 로 전달된다.
    * @param {(ratio:number, loaded:number, total:number) => void} [onProgress]
    */
   static async load(scene, roomId, onProgress) {
     const room = getRoom(roomId);
     const paintings = getPaintings(roomId);
+    const sculptures = getSculptures(roomId);
 
     const manager = new THREE.LoadingManager();
     if (onProgress) {
@@ -49,15 +49,24 @@ export class RoomSession {
       room,
       manager,
     );
-    if (!paintings.length) onProgress?.(1, 0, 0); // 로비처럼 작품이 없는 공간
+    const { group: sculptureGroup, targets: sculptureTargets } = await buildSculptures(
+      sculptures,
+      room,
+      manager,
+    );
+    if (!paintings.length && !sculptures.length) onProgress?.(1, 0, 0); // 로비·바깥처럼 작품이 없는 공간
 
     return new RoomSession(scene, room, {
       roomGroup,
       artGroup,
+      sculptureGroup,
       colliders,
+      ground: createGroundSampler(room),
       portalTargets,
       paintingTargets,
+      sculptureTargets,
       paintings,
+      sculptures,
     });
   }
 
@@ -69,7 +78,7 @@ export class RoomSession {
     this.group.traverse((object) => {
       object.geometry?.dispose();
       for (const material of toArray(object.material)) {
-        for (const key of ['map', 'emissiveMap', 'normalMap', 'roughnessMap', 'alphaMap']) {
+        for (const key of ['map', 'emissiveMap', 'normalMap', 'roughnessMap', 'metalnessMap', 'alphaMap', 'aoMap']) {
           if (material[key]) textures.add(material[key]);
         }
         material.dispose();

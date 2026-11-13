@@ -7,6 +7,7 @@
  */
 import roomsData from './rooms.json';
 import paintingsData from './paintings.json';
+import sculpturesData from './sculptures.json';
 
 const DEFAULTS = roomsData.defaults;
 
@@ -15,7 +16,7 @@ export function assetUrl(path) {
   return import.meta.env.BASE_URL + path;
 }
 
-/** 로비·전시실 목록 (메뉴와 로비 포털에 쓴다) */
+/** 공간 목록 (메뉴와 로비 포털에 쓴다) */
 export function listRooms() {
   return roomsData.rooms.map((r) => ({
     id: r.id,
@@ -25,7 +26,16 @@ export function listRooms() {
     subtitle: r.subtitle,
     menuLabel: r.menuLabel,
     paintingCount: paintingsData.paintings.filter((p) => p.room === r.id).length,
+    sculptureCount: sculpturesData.sculptures.filter((s) => s.room === r.id).length,
   }));
+}
+
+/** 전시 중인 모든 회화·조각 (소개·출처 화면이 쓴다) */
+export function listAllWorks() {
+  return {
+    paintings: paintingsData.paintings,
+    sculptures: sculpturesData.sculptures,
+  };
 }
 
 /** 첫 진입 공간 */
@@ -74,6 +84,13 @@ export function getPaintings(roomId) {
         viewFrom: viewingDistance(painting, room.viewingSpot),
       },
     }));
+}
+
+/** 공간에 놓인 조각 목록. 모델 경로를 배포 base 기준으로 바꿔 넘긴다. */
+export function getSculptures(roomId) {
+  return sculpturesData.sculptures
+    .filter((s) => s.room === roomId)
+    .map((sculpture) => ({ ...sculpture, model: assetUrl(sculpture.model) }));
 }
 
 /**

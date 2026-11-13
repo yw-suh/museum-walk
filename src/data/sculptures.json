@@ -1,0 +1,71 @@
+{
+  "$comment": "조각 데이터. size 는 루브르 공식 소장품 기록(collections.louvre.fr)의 실제 치수(cm). model 은 public/models 의 GLB 이며 npm run prepare-models 로 만든다. modelCredit.subject 는 원본 대리석 스캔인지 석고 복제본 스캔인지를 분명히 적는다.",
+  "sculptures": [
+    {
+      "id": "victoire-de-samothrace",
+      "room": "escalier-daru",
+      "louvreRoom": "Salle 703 (Palier Samothrace · 다뤼 계단 상단 동쪽 층계참)",
+      "titleKo": "사모트라케의 니케",
+      "titleOriginal": "Victoire de Samothrace",
+      "artistKo": "작가 미상 · 로도스 제작",
+      "artistOriginal": "Anonyme (Rhodes)",
+      "yearLabel": "기원전 200~175년경 (헬레니즘)",
+      "mediumKo": "파로스 대리석(조각상) · 라르토스 대리석(뱃머리와 받침)",
+      "inventory": "Ma 2369 ; MNB 2118",
+      "size": {
+        "heightCm": 328,
+        "widthCm": 178,
+        "note": "조각상 328 cm. 뱃머리 받침까지 합한 기념물 전체는 564 cm, 무게 약 2톤."
+      },
+      "scaleNote": "조각상만 3.28 m — 성인 키의 두 배입니다. 뱃머리 받침까지 세우면 5.64 m 로 2층 건물 높이가 됩니다.",
+      "description": "뱃머리에 막 내려앉은 승리의 여신이 날개를 펼친 채 바람을 맞고 있다. 젖은 천이 몸에 달라붙으며 생긴 주름이 보이지 않는 바람을 눈에 보이게 만들어, 멈춰 선 대리석에서 움직임이 읽힌다. 1863년 사모트라케섬에서 조각난 상태로 발견되어 머리와 두 팔은 끝내 찾지 못했고, 1883년부터 다뤼 계단 위에 놓여 올려다보도록 전시되고 있다.",
+      "model": "models/victoire-de-samothrace.glb",
+      "placement": { "position": [0, 5.4, -7.5], "rotationY": 0, "viewFrom": 7.5, "pedestal": { "size": [3.2, 0.9, 3.2], "color": "#6f6a60" } },
+      "modelCredit": {
+        "source": "Scan the World (Zenodo)",
+        "author": "Scan the World 기여자",
+        "license": "CC BY-NC-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+        "url": "https://zenodo.org/records/21354589",
+        "subject": "루브르에 전시된 원본 대리석을 사진측량(photogrammetry)으로 스캔한 모델",
+        "file": "d6b6f317a0d0a01b48152d69865fd759_normalized.glb"
+      },
+      "links": [
+        { "type": "louvre", "label": "루브르 공식 소장품 페이지", "url": "https://collections.louvre.fr/en/ark:/53355/cl010252531" },
+        { "type": "wikipedia-ko", "label": "위키백과(한국어) — 사모트라케의 니케", "url": "https://ko.wikipedia.org/wiki/사모트라케의_니케" },
+        { "type": "wikipedia-en", "label": "위키백과(영문) — Winged Victory of Samothrace", "url": "https://en.wikipedia.org/wiki/Winged_Victory_of_Samothrace" }
+      ]
+    },
+    {
+      "id": "venus-de-milo",
+      "room": "salle-venus",
+      "louvreRoom": "Salle 345 (쉴리관 0층 · 그리스 고전·헬레니즘 미술)",
+      "titleKo": "밀로의 비너스",
+      "titleOriginal": "Aphrodite, dite Vénus de Milo",
+      "artistKo": "작가 미상 · 안티오케이아의 알렉산드로스로 추정",
+      "artistOriginal": "Anonyme (attribué à Alexandros d'Antioche)",
+      "yearLabel": "기원전 150~125년경 (헬레니즘)",
+      "mediumKo": "파로스 대리석(리크니테스)",
+      "inventory": "Ma 399 ; LL 299",
+      "size": { "heightCm": 204, "widthCm": 64, "note": "허리 부분에서 두 덩이를 맞붙여 만들었다." },
+      "scaleNote": "높이 2.04 m — 성인 키보다 한 뼘 이상 큽니다. 받침 없이 서 있어도 올려다보게 됩니다.",
+      "description": "허리에 흘러내린 천 하나만 두른 여신이 몸을 S자로 비틀고 서 있다. 상반신의 매끄러운 살결과 하반신 천의 깊은 주름이 맞붙으며, 보는 각도마다 윤곽이 달라지도록 계산되어 있다. 1820년 밀로스섬의 한 농부가 발견했을 때 두 팔은 이미 없었고, 무엇을 들고 있었는지는 지금도 논쟁거리다.",
+      "model": "models/venus-de-milo.glb",
+      "placement": { "position": [0, 1.1, 0], "rotationY": 0.35, "viewFrom": 4.2, "pedestal": { "size": [1.3, 1.1, 1.3], "color": "#6f6a60" } },
+      "modelCredit": {
+        "source": "Cosmo Wenman (Zenodo)",
+        "author": "Cosmo Wenman",
+        "license": "CC BY 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+        "url": "https://zenodo.org/records/10331797",
+        "subject": "바젤 조각관(Skulpturhalle Basel)의 석고 복제본을 스캔한 모델 — 루브르 원본 대리석이 아닙니다",
+        "file": "28105f7d4672436bb92831958d6f8471.glb"
+      },
+      "links": [
+        { "type": "louvre", "label": "루브르 공식 소장품 페이지", "url": "https://collections.louvre.fr/en/ark:/53355/cl010277627" },
+        { "type": "wikipedia-ko", "label": "위키백과(한국어) — 밀로의 비너스", "url": "https://ko.wikipedia.org/wiki/밀로의_비너스" },
+        { "type": "wikipedia-en", "label": "위키백과(영문) — Venus de Milo", "url": "https://en.wikipedia.org/wiki/Venus_de_Milo" }
+      ]
+    }
+  ]
+}

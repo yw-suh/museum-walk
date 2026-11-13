@@ -5,10 +5,10 @@ const MAX_DISTANCE = 14; // 이 거리 안의 대상만 집을 수 있다 (m)
 /**
  * 화면 한 점에서 Raycaster 를 쏘아 바라보는 대상을 찾는다.
  *
- * 작품과 포털을 함께 판정한다. 데스크톱은 화면 중앙(조준점),
+ * 회화·조각·포털을 함께 판정한다. 데스크톱은 화면 중앙(조준점),
  * 모바일은 손가락으로 탭한 좌표를 쓴다.
  *
- * @returns {{kind:'painting'|'portal', painting?:object, portal?:object, object:THREE.Object3D}|null}
+ * @returns {{kind:'painting'|'sculpture'|'portal', painting?:object, sculpture?:object, portal?:object, object:THREE.Object3D}|null}
  */
 export class Picker {
   constructor(camera) {
@@ -31,6 +31,7 @@ export class Picker {
     if (!hit) return null;
     const data = hit.object.userData;
     if (data.painting) return { kind: 'painting', painting: data.painting, object: hit.object };
+    if (data.sculpture) return { kind: 'sculpture', sculpture: data.sculpture, object: hit.object };
     if (data.portal) return { kind: 'portal', portal: data.portal, object: hit.object };
     return null;
   }

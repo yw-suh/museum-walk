@@ -6,7 +6,7 @@ import { isTouchDevice } from '../core/input.js';
  * 시작 화면: 제목 · 소개 · 닉네임 · 아바타 색상 · 조작법 · 로딩 진행률 · 입장 버튼.
  * 관람 중 포인터 잠금이 풀리면(Esc) 다시 나타난다.
  */
-export function createStartOverlay({ onEnter }) {
+export function createStartOverlay({ onEnter, onAbout }) {
   const overlay = document.querySelector('#start-overlay');
   const button = document.querySelector('#enter-button');
   const nameInput = document.querySelector('#nickname');
@@ -58,6 +58,8 @@ export function createStartOverlay({ onEnter }) {
     }
   }
   paintSelection();
+
+  document.querySelector('#start-about').addEventListener('click', () => onAbout?.());
 
   let ready = false;
 

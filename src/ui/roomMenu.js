@@ -26,12 +26,12 @@ export function createRoomMenu({ rooms, onSelect }) {
 
         const meta = document.createElement('span');
         meta.className = 'room-card-meta';
+        const counts = [
+          room.paintingCount ? `회화 ${room.paintingCount}점` : null,
+          room.sculptureCount ? `조각 ${room.sculptureCount}점` : null,
+        ].filter(Boolean);
         meta.textContent =
-          room.id === currentRoomId
-            ? '지금 여기'
-            : room.paintingCount
-              ? `작품 ${room.paintingCount}점`
-              : '입장 공간';
+          room.id === currentRoomId ? '지금 여기' : counts.length ? counts.join(' · ') : '입장 공간';
 
         button.append(name, sub, meta);
         button.addEventListener('click', () => {

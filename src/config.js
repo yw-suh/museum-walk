@@ -16,9 +16,12 @@ export const SITE = {
   DISCLAIMER: '비상업적 교육 목적의 비공식 프로젝트이며, 루브르 박물관과는 무관합니다.',
 
   /** 제작자 이름. 비워 두면 "소개·출처" 화면에서 숨겨집니다. */
-  CREDIT_NAME: '',
+  CREDIT_NAME: 'ywsuh',
 
-  /** 의견 보내기 링크(폼·이메일·이슈 등). 비워 두면 버튼이 숨겨집니다. */
+  /**
+   * 의견 보내기 링크(구글 폼·이메일·이슈 등). 비워 두면 버튼이 숨겨집니다.
+   * 예) 'https://forms.gle/xxxxxxxx' 또는 'mailto:you@example.com'
+   */
   FEEDBACK_URL: '',
 
   /** 화면 구석 "Beta" 표시 */

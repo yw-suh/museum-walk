@@ -271,11 +271,14 @@ function makeSignTexture(portal) {
 function makeSky(sky) {
   const canvas = document.createElement('canvas');
   canvas.width = 4;
-  canvas.height = 256;
+  canvas.height = 512;
   const ctx = canvas.getContext('2d');
   const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+  // 경계가 눈에 띄지 않도록 여러 단계로 나눠 섞는다
   gradient.addColorStop(0, sky.top);
-  gradient.addColorStop(0.55, sky.middle);
+  gradient.addColorStop(0.35, sky.top);
+  gradient.addColorStop(0.62, sky.middle);
+  gradient.addColorStop(0.85, sky.bottom);
   gradient.addColorStop(1, sky.bottom);
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -283,8 +286,10 @@ function makeSky(sky) {
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
 
+  // 반지름은 카메라 far(240m)보다 넉넉히 작아야 한다.
+  // 크면 구의 먼 쪽이 far 평면에 잘려 하늘 한가운데 둥근 경계가 생긴다.
   const mesh = new THREE.Mesh(
-    new THREE.SphereGeometry(sky.radius ?? 200, 32, 20),
+    new THREE.SphereGeometry(sky.radius ?? 150, 32, 20),
     new THREE.MeshBasicMaterial({ map: texture, side: THREE.BackSide, depthWrite: false, fog: false }),
   );
   mesh.renderOrder = -1;

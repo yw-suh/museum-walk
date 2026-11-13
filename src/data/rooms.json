@@ -39,7 +39,7 @@
         "spot": { "color": "#fff4e2", "intensity": 10, "angle": 0.6, "penumbra": 0.8, "decay": 2 }
       },
 
-      "sky": { "top": "#2f6fc4", "middle": "#8fbbe8", "bottom": "#e4ecef", "radius": 220 },
+      "sky": { "top": "#3c79c4", "middle": "#7fb0de", "bottom": "#bcd3e4", "radius": 150 },
 
       "$comment_features": "외관 구성물. glassPyramid 은 실제 비율(밑변 35 m, 높이 21.6 m)을 따른다.",
       "features": [
